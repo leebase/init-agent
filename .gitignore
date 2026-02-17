@@ -22,3 +22,4 @@ test-project/
 my-project/
 my-api/
 my-cli/
+.zig-cache/
