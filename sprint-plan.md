@@ -10,7 +10,7 @@
 | Status | ✅ Complete |
 | Start Date | 2026-02-17 |
 | Target End | 2026-02-17 |
-| Completion | 100% |
+| Completion | 100% (v0.1.0 + deployment) |
 
 ---
 
@@ -86,12 +86,39 @@
 
 ---
 
+### Task Group 5 — Deployment (Added)
+
+| Task | Status |
+|------|--------|
+| GitHub Actions CI workflow | ✅ |
+| GitHub Actions release workflow | ✅ |
+| Cross-platform build targets | ✅ |
+| Makefile with release targets | ✅ |
+| Release script | ✅ |
+| Installation docs | ✅ |
+
+**Platforms Supported:**
+- ✅ macOS ARM64 (Apple Silicon)
+- ✅ macOS x86_64 (Intel)
+- ✅ Linux x86_64
+- ✅ Linux ARM64
+- ✅ Windows x86_64
+
+**Completion Criteria:**
+- ✅ CI runs on every PR
+- ✅ Release builds on tag push
+- ✅ All 5 platforms build successfully
+- ✅ Documentation includes install instructions
+
+---
+
 ## Definition of Done
 
 - [x] All task groups planned
 - [x] Compiles successfully
 - [x] Tested with example project
 - [x] Documentation complete
+- [x] Cross-platform deployment configured
 - [x] Ready for use
 
 ---

@@ -37,21 +37,68 @@ my-project/
 
 ## Installation
 
-### Prerequisites
+### Option 1: Download Pre-built Binary (Recommended)
 
-- [Zig](https://ziglang.org/download/) 0.13.0 or later
+Download the latest release for your platform:
 
-### Build from Source
+| Platform | Architecture | Download |
+|----------|-------------|----------|
+| macOS (Apple Silicon) | arm64 | `init-agent-aarch64-macos.tar.gz` |
+| macOS (Intel) | x86_64 | `init-agent-x86_64-macos.tar.gz` |
+| Linux | x86_64 | `init-agent-x86_64-linux.tar.gz` |
+| Linux | arm64 | `init-agent-aarch64-linux.tar.gz` |
+| Windows | x86_64 | `init-agent-x86_64-windows.zip` |
+
+```bash
+# macOS/Linux example
+curl -L -o init-agent.tar.gz https://github.com/yourusername/init-agent/releases/latest/download/init-agent-aarch64-macos.tar.gz
+tar xzf init-agent.tar.gz
+sudo mv init-agent-aarch64-macos /usr/local/bin/init-agent
+chmod +x /usr/local/bin/init-agent
+```
+
+### Option 2: Build from Source
+
+#### Prerequisites
+
+- [Zig](https://ziglang.org/download/) 0.15.0 or later
+
+#### Quick Build
 
 ```bash
 git clone https://github.com/yourusername/init-agent.git
 cd init-agent
-zig build -Doptimize=ReleaseFast
+make build
 
 # Install
 cp zig-out/bin/init-agent ~/.local/bin/
 # or
 cp zig-out/bin/init-agent /usr/local/bin/
+```
+
+#### Cross-Compilation
+
+Build for all platforms:
+
+```bash
+make release-all
+```
+
+Or specific platforms:
+
+```bash
+make release-aarch64-macos    # Apple Silicon
+make release-x86_64-macos     # Intel Mac
+make release-x86_64-linux     # Linux x86_64
+make release-aarch64-linux    # Linux ARM64
+make release-x86_64-windows   # Windows
+```
+
+Create release packages:
+
+```bash
+make package
+# Creates .tar.gz (macOS/Linux) and .zip (Windows) in dist/
 ```
 
 ## Usage
@@ -115,6 +162,18 @@ zig build
 zig build -Doptimize=ReleaseFast
 ```
 
+### Using Make
+
+```bash
+make build         # Release build
+make debug         # Debug build
+make test          # Run tests
+make run           # Build and run test scaffold
+make dev-test      # Build, test, and clean up
+make clean         # Clean artifacts
+make help          # Show all targets
+```
+
 ## Project Structure
 
 ```
@@ -134,6 +193,36 @@ init-agent/
 ## License
 
 MIT
+
+## CI/CD
+
+This project uses GitHub Actions for:
+
+- **Continuous Integration**: Tests on every PR (Ubuntu, macOS, Windows)
+- **Release Builds**: Automatic cross-platform binaries on tag push
+
+### Creating a Release
+
+```bash
+# 1. Ensure you're on main with clean working directory
+git checkout main
+git status
+
+# 2. Run the release script
+./scripts/release.sh v0.1.0
+
+# 3. GitHub Actions builds and publishes release binaries
+```
+
+### Manual Cross-Compilation
+
+```bash
+# Build all targets locally
+make release-all
+
+# Build specific target
+zig build -Doptimize=ReleaseFast -Dtarget=x86_64-linux
+```
 
 ## Acknowledgments
 
