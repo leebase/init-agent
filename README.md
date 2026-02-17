@@ -5,8 +5,8 @@ A Zig CLI tool that bootstraps AI-agent projects with battle-tested patterns fro
 ## Quick Start
 
 ```bash
-# Install init-agent (after building)
-cp zig-out/bin/init-agent ~/.local/bin/
+# Install init-agent (macOS/Linux)
+curl -sSL https://raw.githubusercontent.com/leebase/init-agent/main/scripts/install.sh | sh
 
 # Create a new AI-agent project
 init-agent my-project --profile python
@@ -46,9 +46,47 @@ Plus profile-specific files (README, build configs, source code, etc.)
 
 ## Installation
 
-### Option 1: Download Pre-built Binary (Recommended)
+### Option 1: curl | sh (Recommended)
 
-Download the latest release for your platform:
+Install the latest release with one command:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/leebase/init-agent/main/scripts/install.sh | sh
+```
+
+Install a specific version:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/leebase/init-agent/main/scripts/install.sh | sh -s -- v1.0.0
+```
+
+The script will:
+- Detect your OS and architecture
+- Download the appropriate binary from GitHub releases
+- Install to `/usr/local/bin` (with sudo) or `~/.local/bin`
+- Verify the installation
+
+**Supported platforms:** macOS (Apple Silicon, Intel), Linux (x86_64, ARM64)
+
+**Windows users:** Download the `.zip` from [releases](https://github.com/leebase/init-agent/releases) and extract manually.
+
+### Option 2: Homebrew (macOS)
+
+```bash
+brew tap leebase/init-agent
+brew install init-agent
+```
+
+Update to the latest version:
+
+```bash
+brew update
+brew upgrade init-agent
+```
+
+### Option 3: Download Pre-built Binary
+
+Download manually from [GitHub releases](https://github.com/leebase/init-agent/releases):
 
 | Platform | Architecture | Download |
 |----------|-------------|----------|
@@ -60,13 +98,13 @@ Download the latest release for your platform:
 
 ```bash
 # macOS/Linux example
-curl -L -o init-agent.tar.gz https://github.com/yourusername/init-agent/releases/latest/download/init-agent-aarch64-macos.tar.gz
+curl -L -o init-agent.tar.gz https://github.com/leebase/init-agent/releases/latest/download/init-agent-aarch64-macos.tar.gz
 tar xzf init-agent.tar.gz
 sudo mv init-agent-aarch64-macos /usr/local/bin/init-agent
 chmod +x /usr/local/bin/init-agent
 ```
 
-### Option 2: Build from Source
+### Option 3: Build from Source
 
 #### Prerequisites
 

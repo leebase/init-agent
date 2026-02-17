@@ -333,4 +333,95 @@ NO_COLOR=1 init-agent my-project --profile python
 
 ---
 
+---
+
+## 2026-02-17 — SPRINT 5 COMPLETE: RELEASE PIPELINE ✅ v1.0.0 SHIPPED!
+
+**v1.0.0 — Stable release with professional distribution**
+
+### Features Added
+
+1. **Version Stamping from Git Tags**
+   - Version embedded at build time from `git describe --tags --always`
+   - Falls back to commit hash or "dev" if not in git
+   - Build options pass version to source code
+
+2. **Automated Changelog Generation**
+   - Script: `scripts/changelog.sh`
+   - Parses conventional commits (feat:, fix:, docs:, etc.)
+   - Groups by category (Features, Bug Fixes, Documentation, etc.)
+   - Commands: generate, update, preview
+
+3. **Homebrew Formula**
+   - File: `homebrew/init-agent.rb`
+   - Supports macOS (ARM64, Intel) and Linux (x86_64, ARM64)
+   - Usage: `brew tap leebase/init-agent && brew install init-agent`
+
+4. **Installation Script (curl | sh)**
+   - Script: `scripts/install.sh`
+   - Auto-detects OS and architecture
+   - Downloads from GitHub releases
+   - Falls back to ~/.local/bin if needed
+   - Backs up existing binaries
+   - Usage: `curl -sSL .../install.sh | sh`
+
+5. **Comprehensive Integration Tests**
+   - File: `tests/integration.sh`
+   - 18 test cases covering all profiles and features
+   - Tests: dry-run, substitution, force, skip-existing, etc.
+   - Auto-builds binary if needed
+   - All tests pass ✅
+
+### Test Results
+
+```
+========================================
+Test Summary:
+  Passed: 18
+  Failed: 0
+========================================
+
+All tests passed!
+```
+
+### Installation Methods
+
+```bash
+# Method 1: curl | sh (Recommended)
+curl -sSL https://raw.githubusercontent.com/leebase/init-agent/main/scripts/install.sh | sh
+
+# Method 2: Homebrew
+brew tap leebase/init-agent
+brew install init-agent
+
+# Method 3: Manual (from releases)
+Download from GitHub releases page
+
+# Method 4: Build from source
+git clone https://github.com/leebase/init-agent.git
+cd init-agent && zig build -Doptimize=ReleaseFast
+```
+
+### Project Stats
+
+- **Lines of Code**: ~1100 (main.zig) + 30 templates
+- **Profiles**: 3 (python, web-app, zig-cli)
+- **Test Coverage**: 17 unit tests + 18 integration tests
+- **Platforms**: macOS (ARM64/x86_64), Linux (x86_64/ARM64), Windows (x86_64)
+- **Commits**: 5 major sprints completed
+
+### v1.0.0 Release Checklist
+
+- [x] Core functionality working
+- [x] All profiles tested
+- [x] CLI polished (colors, dry-run, interactive)
+- [x] Version stamping from git
+- [x] Changelog automation
+- [x] Homebrew formula
+- [x] Installation script
+- [x] Integration tests
+- [x] Documentation complete
+
+---
+
 *End of current entries. Add new results above this line.*

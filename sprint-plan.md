@@ -119,12 +119,12 @@ Refactor from `--lang` flag to `--profile` system with layered templates.
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Version stamping | ⬜ | Embed version in binary at build time |
-| Automated changelog | ⬜ | Generate from git commits |
-| Code signing (macOS) | ⬜ | Notarized binaries |
-| Homebrew formula | ⬜ | `brew install init-agent` |
-| Installation script | ⬜ | `curl | sh` one-liner |
-| Comprehensive tests | ⬜ | Integration tests for all profiles |
+| Version stamping | ✅ | Embed version from git tags at build time |
+| Automated changelog | ✅ | Generate from git commits via scripts/changelog.sh |
+| Code signing (macOS) | ⏭️ | Deferred to post-v1.0 (requires Apple Dev account) |
+| Homebrew formula | ✅ | homebrew/init-agent.rb created |
+| Installation script | ✅ | scripts/install.sh - curl \| sh one-liner |
+| Comprehensive tests | ✅ | 18 integration tests in tests/integration.sh |
 
 **Deliverable:** v1.0.0 release with professional distribution
 

@@ -4,7 +4,9 @@ const mem = std.mem;
 const process = std.process;
 const print = std.debug.print;
 
-const VERSION = "0.4.0";
+// Import build options for version (set at build time from git tags)
+const build_options = @import("build_options");
+const VERSION = build_options.version;
 
 // =============================================================================
 // ANSI Colors
