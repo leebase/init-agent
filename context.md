@@ -30,17 +30,21 @@ Sprint 2 complete! Profile system implemented and tested. Ready for Sprint 3 (pl
 - ✅ All profiles tested and working
 - ✅ Updated README documentation
 
-### Recently Completed (Sprint 3)
-- ✅ Added `--name` flag for custom display names
-- ✅ Added template validation (warns on unresolved placeholders)
-- ✅ Added comprehensive unit tests for substitution functions
-- ✅ Version bumped to 0.3.0
+### Recently Completed (Sprint 4)
+- ✅ Added `--dry-run` flag - preview without creating files
+- ✅ Added `--verbose` flag - detailed logging
+- ✅ Added `--interactive` flag - prompt for missing values
+- ✅ Added colored output with NO_COLOR support
+- ✅ Added smart file overwrite rules (prompt/diff/skip)
+- ✅ Added `--skip-existing` flag
+- ✅ Version bumped to 0.4.0
 
-### Next Steps (Sprint 4 - Enhanced CLI)
-1. Add `--dry-run` flag to preview changes
-2. Add colored output (green checkmarks, red errors)
-3. Add `--verbose` flag for detailed logging
-4. Interactive mode for missing values
+### Next Steps (Sprint 5 - Release Pipeline)
+1. Version stamping from git tags
+2. Automated changelog generation
+3. Homebrew formula
+4. Installation script (curl | sh)
+5. Integration tests for all profiles
 
 ### Next Steps (Future Sprints)
 - Sprint 3: Placeholder substitution (`--name`, `--author`)

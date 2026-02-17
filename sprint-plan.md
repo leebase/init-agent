@@ -100,14 +100,14 @@ Refactor from `--lang` flag to `--profile` system with layered templates.
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Add `--dry-run` flag | ⬜ | Print what would be written |
-| Add `--dir` flag | ⬜ | Explicit output directory |
-| Interactive mode | ⬜ | Prompt for missing values |
-| Colored output | ⬜ | Green checkmarks, red errors |
-| Verbose mode | ⬜ | `--verbose` for detailed logging |
-| File overwrite rules | ⬜ | Smart merge vs replace decisions |
+| Add `--dry-run` flag | ✅ | Print what would be written |
+| Add `--dir` flag | ✅ | Already existed |
+| Interactive mode (`--interactive`) | ✅ | Prompt for missing values |
+| Colored output | ✅ | ANSI colors, NO_COLOR support |
+| Verbose mode (`--verbose`) | ✅ | Detailed logging |
+| File overwrite rules | ✅ | Smart merge vs replace with prompts |
 
-**Deliverable:** Production-ready CLI with all quality-of-life features
+**Deliverable:** ✅ Production-ready CLI with all quality-of-life features
 
 ---
 

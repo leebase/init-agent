@@ -4,7 +4,53 @@ const mem = std.mem;
 const process = std.process;
 const print = std.debug.print;
 
-const VERSION = "0.3.0";
+const VERSION = "0.4.0";
+
+// =============================================================================
+// ANSI Colors
+// =============================================================================
+
+const Color = struct {
+    const reset = "\x1b[0m";
+    const red = "\x1b[31m";
+    const green = "\x1b[32m";
+    const yellow = "\x1b[33m";
+    const cyan = "\x1b[36m";
+    const bold = "\x1b[1m";
+};
+
+var g_color_enabled: bool = true;
+
+fn initColorSupport() void {
+    if (std.process.getEnvVarOwned(std.heap.page_allocator, "NO_COLOR")) |_| {
+        g_color_enabled = false;
+    } else |_| {}
+}
+
+fn cprint(color: []const u8, comptime fmt: []const u8, args: anytype) void {
+    if (g_color_enabled) {
+        print("{s}" ++ fmt ++ "{s}", .{color} ++ args ++ .{Color.reset});
+    } else {
+        print(fmt, args);
+    }
+}
+
+// =============================================================================
+// File Action Enum for Smart Overwrite
+// =============================================================================
+
+const FileAction = enum {
+    overwrite, // Write the file
+    skip, // Skip this file
+    overwrite_all, // Write all remaining
+    skip_all, // Skip all remaining
+    show_diff, // Show diff (if possible)
+    quit, // Abort
+};
+
+// Global state for batch decisions during scaffolding
+var g_overwrite_all: bool = false;
+var g_skip_all: bool = false;
 
 // =============================================================================
 // Profile Registry
@@ -142,8 +188,12 @@ const Config = struct {
     profile_name: []const u8,
     output_dir: []const u8,
     force: bool,
+    skip_existing: bool,
     init_git: bool,
     author: []const u8,
+    dry_run: bool,
+    verbose: bool,
+    interactive: bool,
     allocator: std.mem.Allocator,
 
     pub fn deinit(self: *Config) void {
@@ -151,6 +201,12 @@ const Config = struct {
         self.allocator.free(self.display_name);
         self.allocator.free(self.output_dir);
         self.allocator.free(self.author);
+    }
+
+    pub fn logVerbose(self: Config, comptime fmt: []const u8, args: anytype) void {
+        if (self.verbose) {
+            print("[verbose] " ++ fmt, args);
+        }
     }
 };
 
@@ -160,6 +216,7 @@ const ScaffoldError = error{
     InvalidProjectName,
     IoError,
     OutOfMemory,
+    UserAborted,
 };
 
 // =============================================================================
@@ -175,7 +232,11 @@ fn printUsage() void {
     print("  --profile <name>    Project profile: python, web-app, zig-cli (default: python)\n", .{});
     print("  --dir <path>        Output directory (default: ./<project-name>)\n", .{});
     print("  --author <name>     Author name (default: from git config or 'Anonymous')\n", .{});
-    print("  --force             Overwrite existing directory\n", .{});
+    print("  --force             Overwrite existing files (no prompt)\n", .{});
+    print("  --skip-existing     Skip existing files without prompting\n", .{});
+    print("  --dry-run           Print what would be created without creating files\n", .{});
+    print("  --verbose           Show detailed logging\n", .{});
+    print("  --interactive       Prompt for missing values interactively\n", .{});
     print("  --no-git            Skip git initialization\n", .{});
     print("  --list              List available profiles\n", .{});
     print("  -h, --help          Show this help\n", .{});
@@ -185,7 +246,10 @@ fn printUsage() void {
     print("  init-agent my-api --profile python\n", .{});
     print("  init-agent my-api --name \"My Awesome API\" --profile python\n", .{});
     print("  init-agent my-app --profile web-app --author 'Jane Doe'\n", .{});
-    print("  init-agent my-cli --profile zig-cli --force\n\n", .{});
+    print("  init-agent my-cli --profile zig-cli --force\n", .{});
+    print("  init-agent my-cli --profile zig-cli --skip-existing\n", .{});
+    print("  init-agent my-project --dry-run --verbose\n", .{});
+    print("  init-agent my-project --interactive\n\n", .{});
 }
 
 fn printVersion() void {
@@ -357,8 +421,76 @@ fn directoryExists(path: []const u8) bool {
     return true;
 }
 
+fn fileExists(dir: fs.Dir, relative_path: []const u8) bool {
+    dir.access(relative_path, .{}) catch return false;
+    return true;
+}
+
 fn removeDirectoryRecursive(path: []const u8) !void {
     try fs.cwd().deleteTree(path);
+}
+
+fn readFileContent(allocator: std.mem.Allocator, dir: fs.Dir, relative_path: []const u8) !?[]u8 {
+    const file = dir.openFile(relative_path, .{}) catch |err| {
+        if (err == error.FileNotFound) return null;
+        return err;
+    };
+    defer file.close();
+
+    const stat = try file.stat();
+    const content = try allocator.alloc(u8, stat.size);
+    errdefer allocator.free(content);
+
+    const bytes_read = try file.readAll(content);
+    if (bytes_read != stat.size) {
+        return error.Unexpected;
+    }
+
+    return content;
+}
+
+/// Compare two byte slices for equality
+fn contentEqual(a: []const u8, b: []const u8) bool {
+    if (a.len != b.len) return false;
+    return std.mem.eql(u8, a, b);
+}
+
+/// Print a simple diff between two contents
+fn printDiff(allocator: std.mem.Allocator, old_content: []const u8, new_content: []const u8, file_path: []const u8) void {
+    _ = allocator;
+    print("\n--- {s} (existing)\n", .{file_path});
+    print("+++ {s} (new)\n\n", .{file_path});
+
+    // Simple line-by-line diff
+    var old_lines = std.mem.splitScalar(u8, old_content, '\n');
+    var new_lines = std.mem.splitScalar(u8, new_content, '\n');
+
+    var line_num: usize = 1;
+    var has_diff = false;
+
+    while (old_lines.next()) |old_line| {
+        const new_line = new_lines.next();
+        if (new_line == null) {
+            print("-{d}: {s}\n", .{ line_num, old_line });
+            has_diff = true;
+        } else if (!std.mem.eql(u8, old_line, new_line.?)) {
+            print("-{d}: {s}\n", .{ line_num, old_line });
+            print("+{d}: {s}\n", .{ line_num, new_line.? });
+            has_diff = true;
+        }
+        line_num += 1;
+    }
+
+    while (new_lines.next()) |new_line| {
+        print("+{d}: {s}\n", .{ line_num, new_line });
+        has_diff = true;
+        line_num += 1;
+    }
+
+    if (!has_diff) {
+        print("(Files are identical)\n", .{});
+    }
+    print("\n", .{});
 }
 
 fn writeFile(dir: fs.Dir, relative_path: []const u8, content: []const u8) !void {
@@ -374,6 +506,105 @@ fn writeFile(dir: fs.Dir, relative_path: []const u8, content: []const u8) !void 
     try file.writeAll(content);
 }
 
+/// Prompt user for action when file exists and differs
+fn promptFileAction(file_path: []const u8) FileAction {
+    while (true) {
+        print("File exists and differs: {s}\n", .{file_path});
+        print("[o]verwrite, [s]kip, [O]verwrite all, [S]kip all, [d]iff, [q]uit? ", .{});
+
+        var buf: [10]u8 = undefined;
+        const stdin = std.fs.File{ .handle = std.posix.STDIN_FILENO };
+        const bytes_read = stdin.read(&buf) catch {
+            print("Error reading input, defaulting to skip\n", .{});
+            return .skip;
+        };
+
+        if (bytes_read == 0) continue;
+
+        const input = std.mem.trim(u8, buf[0..bytes_read], " \n\r\t");
+        if (input.len == 0) continue;
+
+        switch (input[0]) {
+            'o', 'O' => {
+                if (input[0] == 'O') {
+                    g_overwrite_all = true;
+                    return .overwrite_all;
+                }
+                return .overwrite;
+            },
+            's', 'S' => {
+                if (input[0] == 'S') {
+                    g_skip_all = true;
+                    return .skip_all;
+                }
+                return .skip;
+            },
+            'd', 'D' => return .show_diff,
+            'q', 'Q' => return .quit,
+            else => print("Invalid option. Please try again.\n\n", .{}),
+        }
+    }
+}
+
+/// Determine what action to take for a file
+fn shouldWriteFile(
+    allocator: std.mem.Allocator,
+    project_dir: fs.Dir,
+    file_path: []const u8,
+    new_content: []const u8,
+    config: Config,
+) ScaffoldError!FileAction {
+    // If force flag is set, always overwrite
+    if (config.force) {
+        return .overwrite;
+    }
+
+    // If skip-existing flag is set, skip existing files
+    if (config.skip_existing) {
+        if (fileExists(project_dir, file_path)) {
+            // Check if content is identical
+            const existing_content = readFileContent(allocator, project_dir, file_path) catch |err| {
+                print("Warning: Could not read existing file '{s}': {s}\n", .{ file_path, @errorName(err) });
+                return .skip;
+            };
+            if (existing_content) |content| {
+                defer allocator.free(content);
+                if (contentEqual(content, new_content)) {
+                    print("⏭️  Skipped {s} (identical)\n", .{file_path});
+                } else {
+                    print("⏭️  Skipped {s} (existing)\n", .{file_path});
+                }
+            } else {
+                print("⏭️  Skipped {s} (existing)\n", .{file_path});
+            }
+            return .skip;
+        }
+        return .overwrite;
+    }
+
+    // Check if file exists
+    if (!fileExists(project_dir, file_path)) {
+        return .overwrite;
+    }
+
+    // Read existing content
+    const existing_content = readFileContent(allocator, project_dir, file_path) catch |err| {
+        print("Warning: Could not read existing file '{s}': {s}\n", .{ file_path, @errorName(err) });
+        return .overwrite; // Write anyway if we can't read
+    } orelse return .overwrite; // File disappeared, write it
+
+    defer allocator.free(existing_content);
+
+    // Check if content is identical
+    if (contentEqual(existing_content, new_content)) {
+        print("⏭️  Skipped {s} (identical)\n", .{file_path});
+        return .skip;
+    }
+
+    // Content differs - prompt user
+    return promptFileAction(file_path);
+}
+
 // =============================================================================
 // Scaffold Logic
 // =============================================================================
@@ -382,30 +613,28 @@ fn createScaffold(config: Config) ScaffoldError!void {
     const allocator = config.allocator;
 
     const profile = getProfile(config.profile_name) orelse return ScaffoldError.InvalidProfile;
+    config.logVerbose("Loading profile: {s}\n", .{profile.name});
+
+    // Reset global batch state
+    g_overwrite_all = false;
+    g_skip_all = false;
 
     const exists = directoryExists(config.output_dir);
-    if (exists and !config.force) {
-        return ScaffoldError.ProjectExists;
-    }
 
+    // If force flag is set and directory exists, remove it entirely
     if (exists and config.force) {
-        removeDirectoryRecursive(config.output_dir) catch |err| {
-            print("Error removing existing directory: {s}\n", .{@errorName(err)});
-            return ScaffoldError.IoError;
-        };
+        if (config.dry_run) {
+            print("[DRY RUN] Would remove existing directory: {s}\n", .{config.output_dir});
+        } else {
+            removeDirectoryRecursive(config.output_dir) catch |err| {
+                print("Error removing existing directory: {s}\n", .{@errorName(err)});
+                return ScaffoldError.IoError;
+            };
+            config.logVerbose("Removed existing directory: {s}\n", .{config.output_dir});
+        }
     }
 
-    fs.cwd().makeDir(config.output_dir) catch |err| {
-        print("Error creating directory: {s}\n", .{@errorName(err)});
-        return ScaffoldError.IoError;
-    };
-
-    var project_dir = fs.cwd().openDir(config.output_dir, .{}) catch |err| {
-        print("Error opening directory: {s}\n", .{@errorName(err)});
-        return ScaffoldError.IoError;
-    };
-    defer project_dir.close();
-
+    // Prepare variables for substitution
     const vars = VariableMap{
         .project_name = config.display_name,
         .date = getCurrentDate(),
@@ -413,16 +642,172 @@ fn createScaffold(config: Config) ScaffoldError!void {
         .profile = profile.display_name,
     };
 
-    for (profile.directories) |dir_template| {
-        const dir_path = try substituteVariables(allocator, dir_template, vars);
-        defer allocator.free(dir_path);
+    // Handle dry-run mode
+    if (config.dry_run) {
+        print("[DRY RUN] Would create directory: {s}\n", .{config.output_dir});
+        for (profile.directories) |dir_template| {
+            const dir_path = try substituteVariables(allocator, dir_template, vars);
+            defer allocator.free(dir_path);
+            print("[DRY RUN] Would create directory: {s}/{s}\n", .{ config.output_dir, dir_path });
+        }
+        // In dry-run, skip actual directory operations and go straight to file preview
+    } else {
+        // Create output directory if it doesn't exist
+        if (!exists or config.force) {
+            fs.cwd().makeDir(config.output_dir) catch |err| {
+                print("Error creating directory: {s}\n", .{@errorName(err)});
+                return ScaffoldError.IoError;
+            };
+            config.logVerbose("Created directory: {s}\n", .{config.output_dir});
+        }
 
-        project_dir.makePath(dir_path) catch |err| {
-            print("Error creating directory '{s}': {s}\n", .{ dir_path, @errorName(err) });
+        // Open directory for file operations
+        var project_dir = fs.cwd().openDir(config.output_dir, .{}) catch |err| {
+            print("Error opening directory: {s}\n", .{@errorName(err)});
             return ScaffoldError.IoError;
         };
+        defer project_dir.close();
+
+        // Create subdirectories
+        for (profile.directories) |dir_template| {
+            const dir_path = try substituteVariables(allocator, dir_template, vars);
+            defer allocator.free(dir_path);
+
+            project_dir.makePath(dir_path) catch |err| {
+                if (err != error.PathAlreadyExists) {
+                    print("Error creating directory '{s}': {s}\n", .{ dir_path, @errorName(err) });
+                    return ScaffoldError.IoError;
+                }
+            };
+            config.logVerbose("Created directory: {s}\n", .{dir_path});
+        }
+
+        // Create files with smart overwrite handling
+        for (profile.files) |template_file| {
+            const target_path = try substituteVariables(allocator, template_file.target_path, vars);
+            defer allocator.free(target_path);
+
+            const content = try substituteVariables(allocator, template_file.content, vars);
+            errdefer allocator.free(content);
+
+            // Check for unresolved placeholders
+            if (hasUnresolvedPlaceholders(content)) {
+                const placeholders = collectUnresolvedPlaceholders(allocator, content) catch |err| blk: {
+                    print("Warning: Could not collect unresolved placeholders: {s}\n", .{@errorName(err)});
+                    break :blk null;
+                };
+                defer if (placeholders) |phs| {
+                    for (phs) |p| {
+                        allocator.free(p);
+                    }
+                    allocator.free(phs);
+                };
+
+                if (placeholders) |phs| {
+                    if (phs.len > 0) {
+                        print("Warning: Unresolved placeholders in {s}:", .{target_path});
+                        for (phs) |p| {
+                            print(" {s}", .{p});
+                        }
+                        print("\n", .{});
+                    }
+                }
+            }
+
+            config.logVerbose("Processing file: {s} ({d} bytes after substitution)\n", .{ target_path, content.len });
+
+            // Check if we should write this file
+            var action: FileAction = undefined;
+
+            if (g_overwrite_all) {
+                action = .overwrite;
+            } else if (g_skip_all) {
+                action = .skip;
+            } else {
+                action = try shouldWriteFile(allocator, project_dir, target_path, content, config);
+            }
+
+            switch (action) {
+                .overwrite, .overwrite_all => {
+                    writeFile(project_dir, target_path, content) catch |err| {
+                        print("Error writing file '{s}': {s}\n", .{ target_path, @errorName(err) });
+                        allocator.free(content);
+                        return ScaffoldError.IoError;
+                    };
+                    config.logVerbose("Wrote file: {s} ({d} bytes)\n", .{ target_path, content.len });
+                    print("✅ Created {s}\n", .{target_path});
+                },
+                .skip, .skip_all => {
+                    // File skipped
+                },
+                .show_diff => {
+                    const existing = readFileContent(allocator, project_dir, target_path) catch |err| {
+                        print("Error reading file for diff '{s}': {s}\n", .{ target_path, @errorName(err) });
+                        allocator.free(content);
+                        continue;
+                    } orelse {
+                        print("File no longer exists: {s}\n", .{target_path});
+                        allocator.free(content);
+                        continue;
+                    };
+                    defer allocator.free(existing);
+
+                    printDiff(allocator, existing, content, target_path);
+
+                    const new_action = promptFileAction(target_path);
+                    switch (new_action) {
+                        .overwrite, .overwrite_all => {
+                            if (new_action == .overwrite_all) {
+                                g_overwrite_all = true;
+                            }
+                            writeFile(project_dir, target_path, content) catch |err| {
+                                print("Error writing file '{s}': {s}\n", .{ target_path, @errorName(err) });
+                                allocator.free(content);
+                                return ScaffoldError.IoError;
+                            };
+                            print("✅ Created {s}\n", .{target_path});
+                        },
+                        .skip, .skip_all => {
+                            if (new_action == .skip_all) {
+                                g_skip_all = true;
+                            }
+                        },
+                        .quit => {
+                            allocator.free(content);
+                            return ScaffoldError.UserAborted;
+                        },
+                        else => {},
+                    }
+                },
+                .quit => {
+                    allocator.free(content);
+                    return ScaffoldError.UserAborted;
+                },
+            }
+
+            allocator.free(content);
+        }
+
+        // Initialize git if requested
+        if (config.init_git) {
+            const git_result = std.process.Child.run(.{
+                .allocator = allocator,
+                .argv = &.{ "git", "init", config.output_dir },
+            }) catch |err| blk: {
+                print("Warning: Could not initialize git repository: {s}\n", .{@errorName(err)});
+                break :blk null;
+            };
+            if (git_result) |result| {
+                allocator.free(result.stdout);
+                allocator.free(result.stderr);
+                config.logVerbose("Initialized git repository\n", .{});
+            }
+        }
+
+        return; // Exit early - we've done all the work
     }
 
+    // Dry-run file preview (only reached in dry-run mode)
     for (profile.files) |template_file| {
         const target_path = try substituteVariables(allocator, template_file.target_path, vars);
         defer allocator.free(target_path);
@@ -432,47 +817,31 @@ fn createScaffold(config: Config) ScaffoldError!void {
 
         // Check for unresolved placeholders
         if (hasUnresolvedPlaceholders(content)) {
-            const placeholders = collectUnresolvedPlaceholders(allocator, content) catch |err| {
-                print("Warning: Could not collect unresolved placeholders: {s}\n", .{@errorName(err)});
-                // Continue with file creation even if we can't list them
-                writeFile(project_dir, target_path, content) catch |write_err| {
-                    print("Error writing file '{s}': {s}\n", .{ target_path, @errorName(write_err) });
-                    return ScaffoldError.IoError;
-                };
-                continue;
-            };
-            defer {
-                for (placeholders) |p| {
+            const placeholders = collectUnresolvedPlaceholders(allocator, content) catch null;
+            defer if (placeholders) |phs| {
+                for (phs) |p| {
                     allocator.free(p);
                 }
-                allocator.free(placeholders);
-            }
+                allocator.free(phs);
+            };
 
-            if (placeholders.len > 0) {
-                print("Warning: Unresolved placeholders in {s}:", .{target_path});
-                for (placeholders) |p| {
-                    print(" {s}", .{p});
+            if (placeholders) |phs| {
+                if (phs.len > 0) {
+                    print("Warning: Unresolved placeholders in {s}:", .{target_path});
+                    for (phs) |p| {
+                        print(" {s}", .{p});
+                    }
+                    print("\n", .{});
                 }
-                print("\n", .{});
             }
         }
 
-        writeFile(project_dir, target_path, content) catch |err| {
-            print("Error writing file '{s}': {s}\n", .{ target_path, @errorName(err) });
-            return ScaffoldError.IoError;
-        };
+        config.logVerbose("Processing file: {s} ({d} bytes after substitution)\n", .{ target_path, content.len });
+        print("[DRY RUN] Would create file: {s}/{s} ({d} bytes)\n", .{ config.output_dir, target_path, content.len });
     }
 
     if (config.init_git) {
-        const git_result = std.process.Child.run(.{
-            .allocator = allocator,
-            .argv = &.{ "git", "init", config.output_dir },
-        }) catch |err| {
-            print("Warning: Could not initialize git repository: {s}\n", .{@errorName(err)});
-            return;
-        };
-        allocator.free(git_result.stdout);
-        allocator.free(git_result.stderr);
+        print("[DRY RUN] Would initialize git repository in: {s}\n", .{config.output_dir});
     }
 }
 
@@ -481,6 +850,8 @@ fn createScaffold(config: Config) ScaffoldError!void {
 // =============================================================================
 
 pub fn main() !void {
+    initColorSupport();
+
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
@@ -532,8 +903,12 @@ pub fn main() !void {
         .profile_name = "python",
         .output_dir = try std.fs.path.join(allocator, &.{ ".", project_name }),
         .force = false,
+        .skip_existing = false,
         .init_git = true,
         .author = try allocator.dupe(u8, default_author),
+        .dry_run = false,
+        .verbose = false,
+        .interactive = false,
         .allocator = allocator,
     };
     defer config.deinit();
@@ -575,11 +950,73 @@ pub fn main() !void {
             config.author = try allocator.dupe(u8, args[i]);
         } else if (mem.eql(u8, arg, "--force")) {
             config.force = true;
+        } else if (mem.eql(u8, arg, "--skip-existing")) {
+            config.skip_existing = true;
         } else if (mem.eql(u8, arg, "--no-git")) {
             config.init_git = false;
+        } else if (mem.eql(u8, arg, "--dry-run")) {
+            config.dry_run = true;
+        } else if (mem.eql(u8, arg, "--verbose")) {
+            config.verbose = true;
+        } else if (mem.eql(u8, arg, "--interactive")) {
+            config.interactive = true;
         } else {
             print("Error: Unknown option: {s}\n", .{arg});
             return;
+        }
+    }
+
+    // Validate that --force and --skip-existing are not used together
+    if (config.force and config.skip_existing) {
+        print("Error: --force and --skip-existing cannot be used together\n", .{});
+        return;
+    }
+
+    // Interactive mode: prompt for missing values
+    if (config.interactive) {
+        const stdin = std.fs.File{ .handle = std.posix.STDIN_FILENO };
+
+        // Prompt for display name
+        if (mem.eql(u8, config.display_name, config.project_name)) {
+            print("Project display name [{s}]: ", .{config.display_name});
+            var buf: [256]u8 = undefined;
+            const bytes_read = stdin.read(&buf) catch 0;
+            if (bytes_read > 0) {
+                const input = std.mem.trim(u8, buf[0..bytes_read], " \n\r\t");
+                if (input.len > 0) {
+                    allocator.free(config.display_name);
+                    config.display_name = try allocator.dupe(u8, input);
+                }
+            }
+        }
+
+        // Prompt for author
+        if (mem.eql(u8, config.author, "Anonymous")) {
+            print("Author name [Anonymous]: ", .{});
+            var buf: [256]u8 = undefined;
+            const bytes_read = stdin.read(&buf) catch 0;
+            if (bytes_read > 0) {
+                const input = std.mem.trim(u8, buf[0..bytes_read], " \n\r\t");
+                if (input.len > 0) {
+                    allocator.free(config.author);
+                    config.author = try allocator.dupe(u8, input);
+                }
+            }
+        }
+
+        // Prompt for profile
+        print("Profile (python/web-app/zig-cli) [{s}]: ", .{config.profile_name});
+        var buf: [256]u8 = undefined;
+        while (true) {
+            const bytes_read = stdin.read(&buf) catch 0;
+            if (bytes_read == 0) break;
+            const input = std.mem.trim(u8, buf[0..bytes_read], " \n\r\t");
+            if (input.len == 0) break; // Use default
+            if (getProfile(input) != null) {
+                config.profile_name = input;
+                break;
+            }
+            print("Invalid profile. Choose from: python, web-app, zig-cli [{s}]: ", .{config.profile_name});
         }
     }
 
@@ -590,23 +1027,44 @@ pub fn main() !void {
     }
 
     const profile = getProfile(config.profile_name).?;
-    print("\n🚀 Creating project: {s}\n", .{project_name});
-    print("   Display:  {s}\n", .{config.display_name});
-    print("   Profile:  {s}\n", .{profile.display_name});
-    print("   Author:   {s}\n", .{config.author});
-    print("   Location: {s}\n\n", .{config.output_dir});
+    if (config.dry_run) {
+        cprint(Color.yellow, "\n[DRY RUN] Would create project: {s}\n", .{project_name});
+    } else {
+        cprint(Color.bold, "\n🚀 Creating project: {s}\n", .{project_name});
+    }
+    cprint(Color.cyan, "   Display:  {s}\n", .{config.display_name});
+    cprint(Color.cyan, "   Profile:  {s}\n", .{profile.display_name});
+    cprint(Color.cyan, "   Author:   {s}\n", .{config.author});
+    cprint(Color.cyan, "   Location: {s}\n", .{config.output_dir});
+    if (config.dry_run) {
+        cprint(Color.yellow, "   Mode:     dry-run (preview only)\n", .{});
+    } else if (config.force) {
+        cprint(Color.red, "   Mode:     force (overwrite all)\n", .{});
+    } else if (config.skip_existing) {
+        cprint(Color.yellow, "   Mode:     skip existing\n", .{});
+    } else {
+        cprint(Color.green, "   Mode:     interactive\n", .{});
+    }
+    if (config.verbose) {
+        cprint(Color.cyan, "   Verbose:  enabled\n", .{});
+    }
+    print("\n", .{});
 
     createScaffold(config) catch |err| {
         switch (err) {
             ScaffoldError.ProjectExists => {
                 print("Error: Project directory already exists: {s}\n", .{config.output_dir});
-                print("       Use --force to overwrite\n", .{});
+                print("       Use --force to overwrite or --skip-existing to skip existing files\n", .{});
             },
             ScaffoldError.InvalidProfile => {
                 print("Error: Invalid profile: {s}\n", .{config.profile_name});
             },
             ScaffoldError.IoError => {
                 print("Error: Could not create project files\n", .{});
+            },
+            ScaffoldError.UserAborted => {
+                print("\n⚠️  Aborted by user\n", .{});
+                return;
             },
             ScaffoldError.OutOfMemory => {
                 print("Error: Out of memory\n", .{});
@@ -618,13 +1076,17 @@ pub fn main() !void {
         return;
     };
 
-    print("✅ Created {s}\n", .{project_name});
-    print("✅ Generated {d} files from {s} profile\n", .{ profile.files.len, profile.name });
-    if (config.init_git) {
-        print("✅ Initialized git repository\n", .{});
+    if (config.dry_run) {
+        cprint(Color.yellow, "\n[DRY RUN] Preview complete. No files were created.\n", .{});
+    } else {
+        cprint(Color.green, "\n✅ Created {s}\n", .{project_name});
+        cprint(Color.green, "✅ Generated files from {s} profile\n", .{profile.name});
+        if (config.init_git) {
+            cprint(Color.green, "✅ Initialized git repository\n", .{});
+        }
     }
 
-    print("\nNext steps:\n", .{});
+    cprint(Color.cyan, "\nNext steps:\n", .{});
     print("  cd {s}\n", .{config.output_dir});
     print("  [Your AI agent reads AGENTS.md and begins]\n", .{});
 }
@@ -742,4 +1204,14 @@ test "hasUnresolvedPlaceholders detects remaining placeholders" {
 
     // Test with single braces - returns false
     try std.testing.expect(!hasUnresolvedPlaceholders("Value: {PROJECT_NAME}"));
+}
+
+test "contentEqual compares content correctly" {
+    try std.testing.expect(contentEqual("hello", "hello"));
+    try std.testing.expect(!contentEqual("hello", "world"));
+    try std.testing.expect(!contentEqual("hello", "hello world"));
+    try std.testing.expect(!contentEqual("hello world", "hello"));
+    try std.testing.expect(contentEqual("", ""));
+    try std.testing.expect(!contentEqual("a", ""));
+    try std.testing.expect(!contentEqual("", "a"));
 }

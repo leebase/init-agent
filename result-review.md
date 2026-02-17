@@ -261,4 +261,76 @@ init-agent test-name --name "My Awesome Project" --profile python
 
 ---
 
+---
+
+## 2026-02-17 — SPRINT 4 COMPLETE: ENHANCED CLI ✅
+
+**v0.4.0 — Professional CLI with dry-run, colors, and smart overwrite**
+
+### Features Added
+
+1. **`--dry-run` Flag**
+   - Preview mode - shows what would be created without creating files
+   - Shows file sizes and directory structure
+   - Complete variable substitution still runs
+
+2. **`--verbose` Flag**
+   - Detailed logging throughout the process
+   - Shows template loading, variable substitution, file writes
+   - Debug-level information for troubleshooting
+
+3. **`--interactive` Flag**
+   - Prompts for missing values interactively
+   - Prompts: display name, author, profile selection
+   - Validated profile input with retry
+
+4. **Colored Output**
+   - ANSI color support (green success, red errors, yellow warnings, cyan info)
+   - Bold project names
+   - `NO_COLOR` environment variable support to disable colors
+
+5. **Smart File Overwrite Rules**
+   - Detects identical files (skips automatically)
+   - Interactive prompt for differing files:
+     - `[o]verwrite`, `[s]kip`, `[O]verwrite all`, `[S]kip all`, `[d]iff`, `[q]uit`
+   - Diff view shows line-by-line changes
+   - `--skip-existing` flag to always skip
+
+### CLI Summary
+
+```bash
+init-agent my-project --profile python --dry-run --verbose
+init-agent my-project --interactive
+init-agent my-project --profile python --skip-existing
+init-agent my-project --profile zig-cli --force
+NO_COLOR=1 init-agent my-project --profile python
+```
+
+### Output Example
+
+```
+🚀 Creating project: test-project
+   Display:  Test Project
+   Profile:  Python Package
+   Author:   Jane Doe
+   Location: ./test-project
+   Mode:     interactive
+
+✅ Created AGENTS.md
+✅ Created pyproject.toml
+✅ Created src/test_project/__init__.py
+
+✅ Created test-project
+✅ Generated files from python profile
+✅ Initialized git repository
+```
+
+### Code Stats
+
+- `src/main.zig`: ~1100 lines (doubled from v0.3.0)
+- New features: 6 major CLI enhancements
+- Test coverage: 17+ unit tests
+
+---
+
 *End of current entries. Add new results above this line.*
