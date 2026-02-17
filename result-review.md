@@ -49,6 +49,50 @@ Verified:
 
 ---
 
+## 2026-02-17 — DEPLOYMENT INFRASTRUCTURE ADDED 🚀
+
+**Cross-platform CI/CD and release pipeline configured**
+
+### What Was Added
+
+| Component | Purpose |
+|-----------|---------|
+| `.github/workflows/ci.yml` | Run tests on PR (Ubuntu, macOS, Windows) |
+| `.github/workflows/release.yml` | Build binaries on tag push |
+| `Makefile` | Local builds and cross-compilation |
+| `scripts/release.sh` | Version bump and tagging |
+
+### Supported Platforms
+
+| OS | Architecture | Status |
+|----|-------------|--------|
+| macOS | ARM64 (Apple Silicon) | ✅ |
+| macOS | x86_64 (Intel) | ✅ |
+| Linux | x86_64 | ✅ |
+| Linux | ARM64 | ✅ |
+| Windows | x86_64 | ✅ |
+
+### Usage
+
+```bash
+# Local cross-compilation
+make release-all
+make package
+
+# Create release
+./scripts/release.sh v0.2.0
+
+# GitHub Actions builds and publishes automatically
+```
+
+### Documentation Updated
+
+- README: Installation from pre-built binaries
+- README: Cross-compilation instructions
+- README: CI/CD section
+
+---
+
 ## 2026-02-17 — PROJECT INITIALIZED
 
 **init-agent v0.1.0 MVP scaffolded**
