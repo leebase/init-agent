@@ -1,0 +1,24 @@
+# Zig
+zig-cache/
+zig-out/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Test projects (created during development)
+test-project/
+my-project/
+my-api/
+my-cli/
