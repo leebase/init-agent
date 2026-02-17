@@ -116,6 +116,7 @@ make package
 init-agent <project-name> [options]
 
 Options:
+  --name <name>       Display name for project (default: project-name)
   --profile <name>    Project profile: python, web-app, zig-cli (default: python)
   --dir <path>        Output directory (default: ./<project-name>)
   --author <name>     Author name (default: from git config or 'Anonymous')
@@ -130,8 +131,8 @@ Examples:
   # Python package project
   init-agent my-package --profile python
 
-  # Zig CLI tool
-  init-agent my-cli --profile zig-cli --author "Jane Doe"
+  # Zig CLI tool with custom display name
+  init-agent my-cli --profile zig-cli --name "My CLI Tool" --author "Jane Doe"
 
   # Web app with React + Vite
   init-agent my-app --profile web-app --force

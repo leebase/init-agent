@@ -82,13 +82,13 @@ Refactor from `--lang` flag to `--profile` system with layered templates.
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Add `--name` flag | ⬜ | Override project name |
-| Add `--author` flag | ⬜ | Set author name |
-| Implement substitution engine | ⬜ | Replace `{{PROJECT_NAME}}`, `{{DATE}}`, `{{AUTHOR}}`, `{{PROFILE}}` |
-| Add substitution tests | ⬜ | Unit tests for replace function |
-| Template validation | ⬜ | Ensure all placeholders are resolved |
+| Add `--name` flag | ✅ | Override project display name |
+| Add `--author` flag | ✅ | Already existed |
+| Implement substitution engine | ✅ | Already existed |
+| Add substitution tests | ✅ | 17 test cases for replaceAll, substituteVariables, hasUnresolvedPlaceholders |
+| Template validation | ✅ | Warns on unresolved {{VAR}} patterns |
 
-**Deliverable:** Templates render with actual project names, dates, and author info
+**Deliverable:** ✅ Templates render with actual project names, dates, and author info. Unit tests pass.
 
 ---
 

@@ -30,12 +30,17 @@ Sprint 2 complete! Profile system implemented and tested. Ready for Sprint 3 (pl
 - ✅ All profiles tested and working
 - ✅ Updated README documentation
 
-### Next Steps (Sprint 3 - Placeholder Substitution)
-1. Add `--name` flag for custom project names
-2. Add `--date` flag for custom dates
-3. Add more template variables ({{VERSION}}, {{DESCRIPTION}})
-4. Template validation (ensure all placeholders resolved)
-5. Add substitution unit tests
+### Recently Completed (Sprint 3)
+- ✅ Added `--name` flag for custom display names
+- ✅ Added template validation (warns on unresolved placeholders)
+- ✅ Added comprehensive unit tests for substitution functions
+- ✅ Version bumped to 0.3.0
+
+### Next Steps (Sprint 4 - Enhanced CLI)
+1. Add `--dry-run` flag to preview changes
+2. Add colored output (green checkmarks, red errors)
+3. Add `--verbose` flag for detailed logging
+4. Interactive mode for missing values
 
 ### Next Steps (Future Sprints)
 - Sprint 3: Placeholder substitution (`--name`, `--author`)

@@ -218,4 +218,47 @@ Refactored from `--lang` flag to `--profile` system with layered templates.
 
 ---
 
+---
+
+## 2026-02-17 — SPRINT 3 COMPLETE: PLACEHOLDER SUBSTITUTION ✅
+
+**v0.3.0 — Smart template variables with validation**
+
+### Features Added
+
+1. **`--name` Flag**
+   - Override project display name while keeping directory name
+   - Example: `init-agent my-api --name "My Awesome API"`
+   - Directory: `my-api/`, Templates use: "My Awesome API"
+
+2. **Template Validation**
+   - Detects unresolved `{{VAR}}` patterns after substitution
+   - Warns user: "Warning: Unresolved placeholders in {file}: {{VAR}}"
+   - Files are still created (non-blocking)
+
+3. **Unit Tests** (17 test cases)
+   - `replaceAll` - Basic replacement, multiple occurrences, empty strings
+   - `substituteVariables` - All variables, partial, repeated, empty values
+   - `hasUnresolvedPlaceholders` - Detection of {{...}} patterns
+
+### Changes
+
+- `src/main.zig`: +640 lines (tests + validation)
+- `VERSION`: "0.2.0" → "0.3.0"
+- New CLI option: `--name <display-name>`
+
+### Testing
+
+```bash
+zig build test          # ✅ All 17 tests pass
+zig build               # ✅ Compiles successfully
+
+# Manual testing
+init-agent test-name --name "My Awesome Project" --profile python
+# Directory: test-name/
+# pyproject.toml shows: name = "My Awesome Project"
+```
+
+---
+
 *End of current entries. Add new results above this line.*
