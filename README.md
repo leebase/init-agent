@@ -9,31 +9,40 @@ A Zig CLI tool that bootstraps AI-agent projects with battle-tested patterns fro
 cp zig-out/bin/init-agent ~/.local/bin/
 
 # Create a new AI-agent project
-init-agent my-project --lang python
+init-agent my-project --profile python
+
+# List available profiles
+init-agent --list
 
 # Or with options
-init-agent my-api --lang python --template full --path ./projects
+init-agent my-api --profile web-app --author "Jane Doe" --force
 ```
 
+## Profiles
+
+| Profile | Description | Files Generated |
+|---------|-------------|-----------------|
+| `python` | Python package with pyproject.toml, src layout, and tooling | AGENTS.md, README.md, pyproject.toml, src/ |
+| `web-app` | Modern web app with React, TypeScript, and Vite | AGENTS.md, README.md, package.json, src/, vite.config.ts |
+| `zig-cli` | Command-line tool built with Zig | AGENTS.md, README.md, build.zig, src/main.zig |
+
 ## What You Get
+
+Every project includes the **core agent kit**:
 
 ```
 my-project/
 ├── AGENTS.md              # AI agent guide (contract between human & AI)
-├── context.md             # Working memory / session baton
-├── result-review.md       # Running log of completed work
+├── WHERE_AM_I.md          # Quick orientation for agents
+├── lees-process.md        # Lee's working process
 ├── product-definition.md  # Vision and constraints
 ├── sprint-plan.md         # Current sprint tracking
-├── backlog/               # Backlog workflow
-│   ├── schema.md
-│   ├── candidates/        # AI generates here
-│   ├── approved/          # Human approves here
-│   ├── parked/            # Deferred items
-│   └── implemented/       # Completed items
-├── src/                   # Source code
-├── tests/                 # Tests
-└── logs/                  # Session logs
+├── sprint-review.md       # Sprint retrospective
+├── architecture.md        # Architecture decisions
+└── .gitignore             # Git ignore patterns
 ```
+
+Plus profile-specific files (README, build configs, source code, etc.)
 
 ## Installation
 
@@ -107,23 +116,28 @@ make package
 init-agent <project-name> [options]
 
 Options:
-  --lang <lang>       Language: python, zig, ts, rust, go (default: python)
-  --template <type>   Template: minimal, full (default: full)
-  --path <path>       Target directory (default: ./<name>)
+  --profile <name>    Project profile: python, web-app, zig-cli (default: python)
+  --dir <path>        Output directory (default: ./<project-name>)
+  --author <name>     Author name (default: from git config or 'Anonymous')
+  --force             Overwrite existing directory
   --no-git            Skip git initialization
+  --list              List available profiles
   
   -h, --help          Show help
   -v, --version       Show version
 
 Examples:
-  # Python API project
-  init-agent my-api --lang python
+  # Python package project
+  init-agent my-package --profile python
 
   # Zig CLI tool
-  init-agent my-cli --lang zig --template minimal
+  init-agent my-cli --profile zig-cli --author "Jane Doe"
 
-  # TypeScript web app
-  init-agent my-app --lang ts
+  # Web app with React + Vite
+  init-agent my-app --profile web-app --force
+
+  # List all profiles
+  init-agent --list
 ```
 
 ## Philosophy

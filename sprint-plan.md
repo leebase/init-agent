@@ -6,17 +6,15 @@
 
 | Attribute | Value |
 |-----------|-------|
-| Sprint | 1 — MVP Implementation |
-| Status | ✅ Complete |
-| Start Date | 2026-02-17 |
-| Target End | 2026-02-17 |
-| Completion | 100% (v0.1.0 + deployment) |
+| **Current Sprint** | Sprint 2 — Profile System |
+| **Version Target** | v0.2.0 |
+| **Last Updated** | 2026-02-17 |
 
 ---
 
-## Task Groups
+## Sprint 1 — Foundation ✅ COMPLETE
 
-### Task Group 1 — Core CLI
+> v0.1.0 — Core CLI with basic language support
 
 | Task | Status |
 |------|--------|
@@ -24,72 +22,20 @@
 | Language enum and detection | ✅ |
 | Help text and version | ✅ |
 | Error handling | ✅ |
-
-**Completion Criteria:**
-- ✅ Parses all CLI arguments
-- ✅ Shows help text
-- ✅ Returns appropriate exit codes
-- ✅ Validates inputs
-
----
-
-### Task Group 2 — Templates
-
-| Task | Status |
-|------|--------|
 | AGENTS.md template | ✅ |
 | context.md template | ✅ |
 | sprint-plan.md template | ✅ |
 | result-review.md template | ✅ |
 | backlog/schema.md template | ✅ |
 | .gitignore template | ✅ |
-
-**Completion Criteria:**
-- ✅ All base templates created
-- ✅ Template variable substitution works
-- ✅ Templates are valid markdown
-
----
-
-### Task Group 3 — Scaffolding
-
-| Task | Status |
-|------|--------|
 | Create directory structure | ✅ |
 | Write template files | ✅ |
 | Create backlog folders | ✅ |
 | Create logs folders | ✅ |
 | Initialize git | ✅ |
-| Handle existing directories | ✅ |
-
-**Completion Criteria:**
-- ✅ Creates all directories
-- ✅ Writes all files correctly
-- ✅ Handles errors gracefully
-- ✅ Git init works (optional)
-
----
-
-### Task Group 4 — Build & Test
-
-| Task | Status |
-|------|--------|
 | Create build.zig | ✅ |
-| Compile successfully | ⬜ |
-| Test with example project | ⬜ |
-| Add Zig tests | ⬜ |
-
-**Completion Criteria:**
-- ⬜ Compiles without errors
-- ⬜ Creates working project scaffold
-- ⬜ All template variables render correctly
-
----
-
-### Task Group 5 — Deployment (Added)
-
-| Task | Status |
-|------|--------|
+| Compile successfully | ✅ |
+| Test with example project | ✅ |
 | GitHub Actions CI workflow | ✅ |
 | GitHub Actions release workflow | ✅ |
 | Cross-platform build targets | ✅ |
@@ -97,29 +43,174 @@
 | Release script | ✅ |
 | Installation docs | ✅ |
 
-**Platforms Supported:**
-- ✅ macOS ARM64 (Apple Silicon)
-- ✅ macOS x86_64 (Intel)
-- ✅ Linux x86_64
-- ✅ Linux ARM64
-- ✅ Windows x86_64
-
-**Completion Criteria:**
-- ✅ CI runs on every PR
-- ✅ Release builds on tag push
-- ✅ All 5 platforms build successfully
-- ✅ Documentation includes install instructions
+**Deliverable:** Working CLI that scaffolds projects with `init-agent <name> --lang <lang>`
 
 ---
 
-## Definition of Done
+## Sprint 2 — Profile System 🔄 IN PROGRESS
 
-- [x] All task groups planned
-- [x] Compiles successfully
-- [x] Tested with example project
-- [x] Documentation complete
-- [x] Cross-platform deployment configured
-- [x] Ready for use
+> v0.2.0 — Refactor to profile-based architecture
+
+### Goals
+
+Refactor from `--lang` flag to `--profile` system with layered templates.
+
+### Tasks
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Design profile registry | ⬜ | Map profile name → list of template assets |
+| Create `templates/common/` | ⬜ | agent.md, WHERE_AM_I.md, lees-process.md |
+| Create `templates/python/` | ⬜ | README.md, pyproject.toml, src/__init__.py |
+| Create `templates/web-app/` | ⬜ | README.md, package.json, src/ |
+| Create `templates/zig-cli/` | ⬜ | README.md, build.zig, src/main.zig |
+| Refactor CLI: `--profile` flag | ⬜ | Replace `--lang` with `--profile` |
+| Add `--list` command | ⬜ | List available profiles |
+| Add `--force` flag | ⬜ | Overwrite existing files |
+| Update template variable syntax | ⬜ | Change `{VAR}` to `{{VAR}}` |
+| Update documentation | ⬜ | README, AGENTS.md for new CLI |
+
+**Deliverable:** `init-agent --profile python my-project` works with layered templates
+
+---
+
+## Sprint 3 — Placeholder Substitution
+
+> v0.3.0 — Smart template variables
+
+### Tasks
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Add `--name` flag | ⬜ | Override project name |
+| Add `--author` flag | ⬜ | Set author name |
+| Implement substitution engine | ⬜ | Replace `{{PROJECT_NAME}}`, `{{DATE}}`, `{{AUTHOR}}`, `{{PROFILE}}` |
+| Add substitution tests | ⬜ | Unit tests for replace function |
+| Template validation | ⬜ | Ensure all placeholders are resolved |
+
+**Deliverable:** Templates render with actual project names, dates, and author info
+
+---
+
+## Sprint 4 — Enhanced CLI & Dry Run
+
+> v0.4.0 — Professional CLI experience
+
+### Tasks
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Add `--dry-run` flag | ⬜ | Print what would be written |
+| Add `--dir` flag | ⬜ | Explicit output directory |
+| Interactive mode | ⬜ | Prompt for missing values |
+| Colored output | ⬜ | Green checkmarks, red errors |
+| Verbose mode | ⬜ | `--verbose` for detailed logging |
+| File overwrite rules | ⬜ | Smart merge vs replace decisions |
+
+**Deliverable:** Production-ready CLI with all quality-of-life features
+
+---
+
+## Sprint 5 — Release Pipeline Polish
+
+> v1.0.0 — Stable release
+
+### Tasks
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Version stamping | ⬜ | Embed version in binary at build time |
+| Automated changelog | ⬜ | Generate from git commits |
+| Code signing (macOS) | ⬜ | Notarized binaries |
+| Homebrew formula | ⬜ | `brew install init-agent` |
+| Installation script | ⬜ | `curl | sh` one-liner |
+| Comprehensive tests | ⬜ | Integration tests for all profiles |
+
+**Deliverable:** v1.0.0 release with professional distribution
+
+---
+
+## Profile Registry (Planned)
+
+> **Note:** These are templates for generated projects, NOT project files.
+> Our own `AGENTS.md` and `context.md` remain in the project root.
+
+```
+templates/
+  common/           # Always included in generated projects
+    agent.md        # Lowercase - for generated projects
+    WHERE_AM_I.md
+    lees-process.md
+    sprint-plan.md
+    sprint-review.md
+    product-definition.md
+    architecture.md
+    .gitignore
+
+  python/           # --profile python
+    README.md
+    pyproject.toml
+    src/__init__.py
+
+  web-app/          # --profile web-app
+    README.md
+    package.json
+    src/
+
+  zig-cli/          # --profile zig
+    README.md
+    build.zig
+    src/main.zig
+```
+
+---
+
+## Template Variables
+
+| Variable | Source | Example |
+|----------|--------|---------|
+| `{{PROJECT_NAME}}` | CLI arg or `--name` | `my-awesome-project` |
+| `{{DATE}}` | Current date | `2026-02-17` |
+| `{{AUTHOR}}` | `--author` flag or git config | `Lee Harrington` |
+| `{{PROFILE}}` | Selected profile | `python` |
+
+---
+
+## CLI Evolution
+
+### v0.1.0 (Current)
+```bash
+init-agent my-project --lang python
+```
+
+### v0.2.0 (Target)
+```bash
+init-agent my-project --profile python
+init-agent --list                    # List profiles
+init-agent my-project --force        # Overwrite existing
+```
+
+### v0.3.0 (Target)
+```bash
+init-agent my-project --profile python --author "Lee" --name "custom-name"
+```
+
+### v0.4.0 (Target)
+```bash
+init-agent my-project --profile python --dry-run
+init-agent my-project --profile python --dir ./output
+```
+
+---
+
+## Definition of Done (per Sprint)
+
+- [ ] All tasks in sprint completed
+- [ ] Code compiles without warnings
+- [ ] Tests pass (`zig build test`)
+- [ ] Example project created and verified
+- [ ] Documentation updated
+- [ ] result-review.md updated
 
 ---
 

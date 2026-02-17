@@ -150,4 +150,72 @@ A Zig CLI tool that creates AI-agent project scaffolds.
 
 ---
 
+---
+
+## 2026-02-17 — SPRINT 2 COMPLETE: PROFILE SYSTEM ✅
+
+**v0.2.0 — Profile-based architecture fully implemented**
+
+### What Was Built
+
+Refactored from `--lang` flag to `--profile` system with layered templates.
+
+### New Templates Created
+
+**templates/common/** (7 files - always included)
+- agent.md — AI agent execution contract
+- WHERE_AM_I.md — Quick orientation
+- lees-process.md — Lee's working process
+- sprint-plan.md — Sprint planning
+- sprint-review.md — Sprint retrospective
+- product-definition.md — Product vision
+- architecture.md — Architecture decisions
+
+**templates/python/** (4 files)
+- README.md, pyproject.toml, src/__init__.py, src/main.py
+
+**templates/web-app/** (8 files)
+- README.md, package.json, vite.config.ts, tsconfig.json, tsconfig.node.json, index.html, src/main.tsx, src/App.tsx
+
+**templates/zig-cli/** (3 files)
+- README.md, build.zig, src/main.zig
+
+### CLI Refactor
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| `--profile <name>` | ✅ | Replaced `--lang` flag |
+| `--list` | ✅ | Lists available profiles |
+| `--force` | ✅ | Overwrites existing directories |
+| `--author <name>` | ✅ | Sets author name |
+| `--dir <path>` | ✅ | Output directory |
+| Variable substitution | ✅ | {{PROJECT_NAME}}, {{DATE}}, {{AUTHOR}}, {{PROFILE}} |
+
+### Testing Results
+
+```bash
+# All profiles tested successfully
+./zig-out/bin/init-agent test-python --profile python
+./zig-out/bin/init-agent test-zig --profile zig-cli --author "Test Author"
+./zig-out/bin/init-agent test-web --profile web-app --force
+./zig-out/bin/init-agent --list
+# python - Python package with pyproject.toml...
+# web-app - Modern web app with React, TypeScript...
+# zig-cli - Command-line tool built with Zig
+```
+
+### Architecture Changes
+
+- Templates moved to `src/templates/` for `@embedFile` access
+- Profile registry maps profile names to template collections
+- Layered approach: common/ + profile-specific/
+- All templates embedded at compile time (no runtime dependencies)
+
+### Lines of Code
+
+- src/main.zig: ~527 lines (refactored from ~500)
+- Templates: ~30 files across 4 directories
+
+---
+
 *End of current entries. Add new results above this line.*

@@ -8,30 +8,39 @@
 
 | Attribute | Value |
 |-----------|-------|
-| **Phase** | MVP Complete |
+| **Phase** | Sprint 2 — Profile System |
 | **Mode** | 3 (Full autonomy for this project) |
-| **Last Updated** | 2026-02-17T12:00:00Z |
+| **Last Updated** | 2026-02-17T15:00:00Z |
 
 ---
 
 ## What's Happening Now
 
 ### Current Focus
-MVP is complete and working! init-agent v0.1.0 successfully compiles and creates project scaffolds.
+Sprint 2 complete! Profile system implemented and tested. Ready for Sprint 3 (placeholder enhancements).
 
-### Recently Completed
-- ✅ Fixed Zig 0.15 compatibility issues
-- ✅ Successfully compiled with `zig build -Doptimize=ReleaseFast`
-- ✅ Tested with Python and Zig language options
-- ✅ Verified template variable substitution works
-- ✅ All documentation updated
+### Recently Completed (Sprint 2)
+- ✅ Created templates/common/ with 7 core agent kit files
+- ✅ Created templates/python/ profile (pyproject.toml, src layout)
+- ✅ Created templates/web-app/ profile (React + Vite + TypeScript)
+- ✅ Created templates/zig-cli/ profile (build.zig, main.zig)
+- ✅ Refactored CLI with profile registry system
+- ✅ Added `--profile`, `--list`, `--force`, `--author` flags
+- ✅ Implemented variable substitution ({{PROJECT_NAME}}, {{DATE}}, {{AUTHOR}})
+- ✅ All profiles tested and working
+- ✅ Updated README documentation
 
-### Next Steps (Future Versions)
-1. Install binary to PATH for daily use
-2. Add language-specific source file templates
-3. Add --list-templates command
-4. Add --update flag for existing projects
-5. Create v0.1.0 release
+### Next Steps (Sprint 3 - Placeholder Substitution)
+1. Add `--name` flag for custom project names
+2. Add `--date` flag for custom dates
+3. Add more template variables ({{VERSION}}, {{DESCRIPTION}})
+4. Template validation (ensure all placeholders resolved)
+5. Add substitution unit tests
+
+### Next Steps (Future Sprints)
+- Sprint 3: Placeholder substitution (`--name`, `--author`)
+- Sprint 4: Enhanced CLI (`--dry-run`, `--dir`, colored output)
+- Sprint 5: v1.0.0 release (Homebrew, install script)
 
 ---
 
@@ -43,6 +52,8 @@ MVP is complete and working! init-agent v0.1.0 successfully compiles and creates
 | Templates embedded in source | Self-contained binary, no file reading at runtime | 2026-02-17 |
 | Multi-language support | Different users prefer different languages | 2026-02-17 |
 | TinyClaw methodology | Proven in LeeClaw, reduces risk | 2026-02-17 |
+| Profile-based architecture | Cleaner than `--lang` flag, allows stacking | 2026-02-17 |
+| Template variable substitution | {{PROJECT_NAME}}, {{DATE}}, {{AUTHOR}} support | 2026-02-17 |
 
 ---
 
