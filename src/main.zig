@@ -80,6 +80,7 @@ const Profile = struct {
 
 const COMMON_AGENT_MD = @embedFile("templates/common/agent.md");
 const COMMON_WHERE_AM_I_MD = @embedFile("templates/common/WHERE_AM_I.md");
+const COMMON_FEEDBACK_MD = @embedFile("templates/common/feedback.md");
 
 // =============================================================================
 // Embedded Templates - Python Profile
@@ -121,6 +122,7 @@ const PYTHON_PROFILE = Profile{
     .files = &[_]TemplateFile{
         .{ .target_path = "AGENTS.md", .content = COMMON_AGENT_MD },
         .{ .target_path = "WHERE_AM_I.md", .content = COMMON_WHERE_AM_I_MD },
+        .{ .target_path = "feedback.md", .content = COMMON_FEEDBACK_MD },
         .{ .target_path = "README.md", .content = PYTHON_README_MD },
         .{ .target_path = "pyproject.toml", .content = PYTHON_PYPROJECT_TOML },
         .{ .target_path = "src/{{PROJECT_NAME}}/__init__.py", .content = PYTHON_SRC_INIT_PY },
@@ -139,6 +141,7 @@ const WEBAPP_PROFILE = Profile{
     .files = &[_]TemplateFile{
         .{ .target_path = "AGENTS.md", .content = COMMON_AGENT_MD },
         .{ .target_path = "WHERE_AM_I.md", .content = COMMON_WHERE_AM_I_MD },
+        .{ .target_path = "feedback.md", .content = COMMON_FEEDBACK_MD },
         .{ .target_path = "README.md", .content = WEBAPP_README_MD },
         .{ .target_path = "package.json", .content = WEBAPP_PACKAGE_JSON },
         .{ .target_path = "tsconfig.json", .content = WEBAPP_TSCONFIG_JSON },
@@ -160,6 +163,7 @@ const ZIGCLI_PROFILE = Profile{
     .files = &[_]TemplateFile{
         .{ .target_path = "AGENTS.md", .content = COMMON_AGENT_MD },
         .{ .target_path = "WHERE_AM_I.md", .content = COMMON_WHERE_AM_I_MD },
+        .{ .target_path = "feedback.md", .content = COMMON_FEEDBACK_MD },
         .{ .target_path = "README.md", .content = ZIGCLI_README_MD },
         .{ .target_path = "build.zig", .content = ZIGCLI_BUILD_ZIG },
         .{ .target_path = "src/main.zig", .content = ZIGCLI_SRC_MAIN_ZIG },
