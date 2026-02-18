@@ -30,13 +30,14 @@ Sprint 2 complete! Profile system implemented and tested. Ready for Sprint 3 (pl
 - ✅ All profiles tested and working
 - ✅ Updated README documentation
 
-### Recently Completed (Sprint 5)
+### Recently Completed (Post-v1.0)
 - ✅ Version stamping from git tags (via build.zig)
 - ✅ Automated changelog generation (scripts/changelog.sh)
 - ✅ Homebrew formula (homebrew/init-agent.rb)
 - ✅ Installation script (scripts/install.sh - curl | sh)
 - ✅ 18 integration tests (tests/integration.sh)
 - ✅ Version bumped to 1.0.0
+- ✅ **v1.1.0**: Added feedback.md template to all profiles
 
 ### Next Steps (Sprint 5 - Release Pipeline)
 1. Version stamping from git tags

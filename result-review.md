@@ -424,4 +424,50 @@ cd init-agent && zig build -Doptimize=ReleaseFast
 
 ---
 
+---
+
+## 2026-02-17 — v1.1.0 RELEASED: Feedback.md Template
+
+**Quick iteration - added AI review workflow support**
+
+### What's New
+
+- **feedback.md template** added to all profiles
+- Structured for AI-codes-AI-reviews workflow
+- Status tracking: 🟡 Pending / 🟢 Actioned / 🔴 Declined
+- Categories: [ARCHITECTURE], [CODE], [API], [DOCS], [TEST], etc.
+- Most recent feedback at top
+
+### Template Structure
+
+```markdown
+### 2026-02-17 — Review by {REVIEWER}
+
+**Status**: 🟡 Pending
+
+**Findings**:
+1. **[CODE] Issue description**
+   - **Location**: `src/main.zig:42`
+   - **Issue**: What's wrong
+   - **Recommendation**: Fix approach
+   - **Priority**: 🔴 High
+
+**Action Items**:
+- [ ] Fix the thing (assigned to: @coder)
+```
+
+### Refactoring Decision
+
+**Status**: Deferred indefinitely
+
+**Rationale**: 
+- Current usage: 1-2x/day
+- main.zig ~1100 lines - manageable
+- Pain not acute enough to justify work
+- Better to dogfood and see what actually breaks
+
+**When to refactor**: When adding feature causes real friction, not before.
+
+---
+
 *End of current entries. Add new results above this line.*
