@@ -1,93 +1,79 @@
 # {{PROJECT_NAME}} Sprint Review
 
-> **Retrospective template for completed sprints.**
+> **External AI Review.** Hand sprint results to a fresh AI for outside perspective.
+>
+> Use this when you want an unbiased assessment of what was built. The reviewing AI
+> wasn't involved in the work, so it catches things the builder AI missed.
 
 ---
 
-## Sprint {{NUMBER}} — {{TITLE}}
+## How to Use This File
 
-| Attribute | Value |
-|-----------|-------|
-| **Sprint Dates** | {{DATE}} to {{END_DATE}} |
-| **Version** | v{{VERSION}} |
-| **Status** | ✅ COMPLETE / ❌ INCOMPLETE |
+### As the Human
+
+1. At the end of a sprint (or whenever you want a second opinion):
+   - Open a **new conversation** with any AI
+   - Share the sprint results, relevant code, and this file
+   - Ask it to review and document findings below
+
+2. The reviewing AI fills in a new entry at the top (newest first)
+
+3. You decide what to action, park, or decline
+
+### Why a Fresh AI?
+
+The AI that built the code is biased by its own reasoning. A fresh AI will:
+- Question assumptions the builder took for granted
+- Spot patterns the builder was too close to see
+- Evaluate quality without sunk-cost attachment
 
 ---
 
-## What Was Planned
+## Reviews (Newest First)
 
-1. Task 1
-2. Task 2
-3. Task 3
+### Sprint {{NUMBER}} — Review by {{REVIEWER}}
 
----
+**Date**: {{DATE}}
+**Status**: 🟡 Pending / 🟢 Actioned / 🔴 Declined
 
-## What Was Delivered
-
-### ✅ Completed
+**What Was Delivered**:
 
 | Feature | Notes |
 |---------|-------|
 | Feature 1 | Description |
-| Feature 2 | Description |
 
-### ❌ Not Completed
+**Findings**:
 
-| Feature | Reason | Next Steps |
-|---------|--------|------------|
-| Feature 3 | Blocker/issue | Move to Sprint X |
+1. **[CATEGORY] Brief description**
+   - **Issue**: What was found
+   - **Recommendation**: What should change
+   - **Priority**: 🔴 High / 🟡 Medium / 🟢 Low
 
----
+**Action Items**:
+- [ ] Item 1
+- [ ] Item 2
 
-## Metrics
-
-| Metric | Target | Actual | Notes |
-|--------|--------|--------|-------|
-| Features delivered | X | Y | |
-| Bugs fixed | X | Y | |
-| Test coverage | X% | Y% | |
-| Documentation | Complete | Partial/Complete | |
+**Overall Assessment**:
+[Reviewer's summary: What's strong? What needs attention? Is the project on track?]
 
 ---
 
-## Retrospective
+## Review Categories
 
-### What Went Well
+- **[ARCHITECTURE]** — Structural decisions, patterns
+- **[CODE]** — Implementation quality, logic
+- **[SCOPE]** — Is the work aligned with product goals?
+- **[TEST]** — Coverage, quality, edge cases
+- **[DOCS]** — Documentation completeness
+- **[UX]** — User experience, usability
+- **[RISK]** — Technical debt, security, scalability
 
-- Success 1
-- Success 2
+## Status Legend
 
-### What Could Be Improved
-
-- Issue 1 — suggestion
-- Issue 2 — suggestion
-
-### Action Items
-
-| Action | Owner | Due |
-|--------|-------|-----|
-| Action 1 | | |
-| Action 2 | | |
+- 🟡 **Pending** — Feedback received, not yet actioned
+- 🟢 **Actioned** — Changes implemented
+- 🔴 **Declined** — Intentionally not addressed (include rationale)
 
 ---
 
-## Lessons Learned
-
-Document insights for future sprints:
-
-- Lesson 1
-- Lesson 2
-
----
-
-## Next Sprint Preview
-
-Sprint {{NEXT_NUMBER}} will focus on:
-
-1. Upcoming priority 1
-2. Upcoming priority 2
-3. Carry-overs from this sprint
-
----
-
-*Sprint review conducted on {{DATE}}*
+*This file is for external review. The reviewer should be a fresh AI that wasn't involved in building.*

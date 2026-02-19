@@ -159,8 +159,11 @@ Options:
   --dir <path>        Output directory (default: ./<project-name>)
   --author <name>     Author name (default: from git config or 'Anonymous')
   --force             Overwrite existing directory
+  --skip-existing     Skip existing files without prompting
+  --dry-run           Preview what would be created
   --no-git            Skip git initialization
   --list              List available profiles
+  --update            Update all template files in current dir (use with --profile)
   
   -h, --help          Show help
   -v, --version       Show version
@@ -175,19 +178,22 @@ Examples:
   # Web app with React + Vite
   init-agent my-app --profile web-app --force
 
+  # Update template files in an existing project
+  init-agent --update --profile python
+
   # List all profiles
   init-agent --list
 ```
 
 ## Philosophy
 
-init-agent encodes the lessons learned from LeeClaw into a reusable tool:
+init-agent implements the **AgentFlow** methodology for human-AI collaboration:
 
-1. **Documentation as Contract** - AGENTS.md establishes clear permissions/constraints
-2. **Context Preservation** - context.md maintains state across sessions
-3. **Result Logging** - result-review.md tracks progress
-4. **TinyClaw Methodology** - Small, working, validated increments
-5. **Backlog Workflow** - Structured path from ideas to implementation
+1. **Documentation as Interface** - Markdown files are the API between humans and AI agents
+2. **Context Preservation** - `context.md` maintains state across sessions and LLMs
+3. **Development Loop** - Code → Test → Test As Lee → Fix → Loop → Document → Commit
+4. **Result Logging** - `result-review.md` tracks what was built and how to verify it
+5. **Template Updates** - `--update` pushes template improvements to existing projects
 
 ## Language Support
 

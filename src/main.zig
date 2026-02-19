@@ -81,6 +81,13 @@ const Profile = struct {
 const COMMON_AGENT_MD = @embedFile("templates/common/agent.md");
 const COMMON_WHERE_AM_I_MD = @embedFile("templates/common/WHERE_AM_I.md");
 const COMMON_FEEDBACK_MD = @embedFile("templates/common/feedback.md");
+const COMMON_CONTEXT_MD = @embedFile("templates/common/context.md");
+const COMMON_RESULT_REVIEW_MD = @embedFile("templates/common/result-review.md");
+const COMMON_PROJECT_PLAN_MD = @embedFile("templates/common/project-plan.md");
+const COMMON_BACKLOG_SCHEMA_MD = @embedFile("templates/common/backlog-schema.md");
+const COMMON_BACKLOG_TEMPLATE_MD = @embedFile("templates/common/backlog-template.md");
+const COMMON_LEES_PROCESS_MD = @embedFile("templates/common/lees-process.md");
+const COMMON_SPRINT_REVIEW_MD = @embedFile("templates/common/sprint-review.md");
 
 // =============================================================================
 // Embedded Templates - Python Profile
@@ -123,6 +130,13 @@ const PYTHON_PROFILE = Profile{
         .{ .target_path = "AGENTS.md", .content = COMMON_AGENT_MD },
         .{ .target_path = "WHERE_AM_I.md", .content = COMMON_WHERE_AM_I_MD },
         .{ .target_path = "feedback.md", .content = COMMON_FEEDBACK_MD },
+        .{ .target_path = "context.md", .content = COMMON_CONTEXT_MD },
+        .{ .target_path = "result-review.md", .content = COMMON_RESULT_REVIEW_MD },
+        .{ .target_path = "project-plan.md", .content = COMMON_PROJECT_PLAN_MD },
+        .{ .target_path = "lees-process.md", .content = COMMON_LEES_PROCESS_MD },
+        .{ .target_path = "sprint-review.md", .content = COMMON_SPRINT_REVIEW_MD },
+        .{ .target_path = "backlog/schema.md", .content = COMMON_BACKLOG_SCHEMA_MD },
+        .{ .target_path = "backlog/template.md", .content = COMMON_BACKLOG_TEMPLATE_MD },
         .{ .target_path = "README.md", .content = PYTHON_README_MD },
         .{ .target_path = "pyproject.toml", .content = PYTHON_PYPROJECT_TOML },
         .{ .target_path = "src/{{PROJECT_NAME}}/__init__.py", .content = PYTHON_SRC_INIT_PY },
@@ -131,6 +145,10 @@ const PYTHON_PROFILE = Profile{
     .directories = &[_][]const u8{
         "src/{{PROJECT_NAME}}",
         "tests",
+        "backlog/candidates",
+        "backlog/approved",
+        "backlog/parked",
+        "backlog/implemented",
     },
 };
 
@@ -142,6 +160,13 @@ const WEBAPP_PROFILE = Profile{
         .{ .target_path = "AGENTS.md", .content = COMMON_AGENT_MD },
         .{ .target_path = "WHERE_AM_I.md", .content = COMMON_WHERE_AM_I_MD },
         .{ .target_path = "feedback.md", .content = COMMON_FEEDBACK_MD },
+        .{ .target_path = "context.md", .content = COMMON_CONTEXT_MD },
+        .{ .target_path = "result-review.md", .content = COMMON_RESULT_REVIEW_MD },
+        .{ .target_path = "project-plan.md", .content = COMMON_PROJECT_PLAN_MD },
+        .{ .target_path = "lees-process.md", .content = COMMON_LEES_PROCESS_MD },
+        .{ .target_path = "sprint-review.md", .content = COMMON_SPRINT_REVIEW_MD },
+        .{ .target_path = "backlog/schema.md", .content = COMMON_BACKLOG_SCHEMA_MD },
+        .{ .target_path = "backlog/template.md", .content = COMMON_BACKLOG_TEMPLATE_MD },
         .{ .target_path = "README.md", .content = WEBAPP_README_MD },
         .{ .target_path = "package.json", .content = WEBAPP_PACKAGE_JSON },
         .{ .target_path = "tsconfig.json", .content = WEBAPP_TSCONFIG_JSON },
@@ -153,6 +178,10 @@ const WEBAPP_PROFILE = Profile{
     .directories = &[_][]const u8{
         "src",
         "public",
+        "backlog/candidates",
+        "backlog/approved",
+        "backlog/parked",
+        "backlog/implemented",
     },
 };
 
@@ -164,12 +193,23 @@ const ZIGCLI_PROFILE = Profile{
         .{ .target_path = "AGENTS.md", .content = COMMON_AGENT_MD },
         .{ .target_path = "WHERE_AM_I.md", .content = COMMON_WHERE_AM_I_MD },
         .{ .target_path = "feedback.md", .content = COMMON_FEEDBACK_MD },
+        .{ .target_path = "context.md", .content = COMMON_CONTEXT_MD },
+        .{ .target_path = "result-review.md", .content = COMMON_RESULT_REVIEW_MD },
+        .{ .target_path = "project-plan.md", .content = COMMON_PROJECT_PLAN_MD },
+        .{ .target_path = "lees-process.md", .content = COMMON_LEES_PROCESS_MD },
+        .{ .target_path = "sprint-review.md", .content = COMMON_SPRINT_REVIEW_MD },
+        .{ .target_path = "backlog/schema.md", .content = COMMON_BACKLOG_SCHEMA_MD },
+        .{ .target_path = "backlog/template.md", .content = COMMON_BACKLOG_TEMPLATE_MD },
         .{ .target_path = "README.md", .content = ZIGCLI_README_MD },
         .{ .target_path = "build.zig", .content = ZIGCLI_BUILD_ZIG },
         .{ .target_path = "src/main.zig", .content = ZIGCLI_SRC_MAIN_ZIG },
     },
     .directories = &[_][]const u8{
         "src",
+        "backlog/candidates",
+        "backlog/approved",
+        "backlog/parked",
+        "backlog/implemented",
     },
 };
 
@@ -245,6 +285,7 @@ fn printUsage() void {
     print("  --interactive       Prompt for missing values interactively\n", .{});
     print("  --no-git            Skip git initialization\n", .{});
     print("  --list              List available profiles\n", .{});
+    print("  --update            Update all template files for a profile in current dir\n", .{});
     print("  -h, --help          Show this help\n", .{});
     print("  -v, --version       Show version\n\n", .{});
     print("Examples:\n", .{});
@@ -333,6 +374,7 @@ const VariableMap = struct {
     date: []const u8,
     author: []const u8,
     profile: []const u8,
+    output_dir: []const u8,
 };
 
 /// Apply all variable substitutions to content
@@ -345,6 +387,7 @@ fn substituteVariables(allocator: std.mem.Allocator, content: []const u8, vars: 
         .{ "{{DATE}}", vars.date },
         .{ "{{AUTHOR}}", vars.author },
         .{ "{{PROFILE}}", vars.profile },
+        .{ "{{OUTPUT_DIR}}", vars.output_dir },
     };
 
     inline for (replacements) |replacement| {
@@ -646,6 +689,7 @@ fn createScaffold(config: Config) ScaffoldError!void {
         .date = getCurrentDate(),
         .author = config.author,
         .profile = profile.display_name,
+        .output_dir = config.output_dir,
     };
 
     // Handle dry-run mode
@@ -852,6 +896,142 @@ fn createScaffold(config: Config) ScaffoldError!void {
 }
 
 // =============================================================================
+// Update Contract Files
+// =============================================================================
+
+/// Detect project name from existing context.md or fall back to directory name
+fn detectProjectName(allocator: std.mem.Allocator) ![]const u8 {
+    // Try to read project name from context.md header
+    const cwd = fs.cwd();
+    const maybe_content = readFileContent(allocator, cwd, "context.md") catch null;
+    if (maybe_content) |content| {
+        defer allocator.free(content);
+        // Look for "# <name> Session Context" pattern
+        if (std.mem.indexOf(u8, content, "# ")) |start| {
+            const after_hash = content[start + 2 ..];
+            if (std.mem.indexOf(u8, after_hash, " Session Context")) |end| {
+                const name = std.mem.trim(u8, after_hash[0..end], " \n\r\t");
+                if (name.len > 0) {
+                    return try allocator.dupe(u8, name);
+                }
+            }
+        }
+    }
+
+    // Fall back to current directory name
+    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
+    const cwd_path = try std.process.getCwd(&path_buf);
+    const dir_name = std.fs.path.basename(cwd_path);
+    return try allocator.dupe(u8, dir_name);
+}
+
+/// Detect profile from existing context.md or fall back to "python"
+fn detectProfile(allocator: std.mem.Allocator) []const u8 {
+    const cwd = fs.cwd();
+    const maybe_content = readFileContent(allocator, cwd, "context.md") catch null;
+    if (maybe_content) |content| {
+        defer allocator.free(content);
+        // Look for "**Profile**: <name>" pattern
+        if (std.mem.indexOf(u8, content, "**Profile**: ")) |start| {
+            const after = content[start + 13 ..];
+            if (std.mem.indexOf(u8, after, "\n")) |end| {
+                const profile = std.mem.trim(u8, after[0..end], " \r\t");
+                if (profile.len > 0) {
+                    return allocator.dupe(u8, profile) catch "Python Package";
+                }
+            }
+        }
+    }
+    return allocator.dupe(u8, "Python Package") catch "Python Package";
+}
+
+fn updateProjectFiles(allocator: std.mem.Allocator, profile_name_arg: []const u8) !void {
+    const project_name = try detectProjectName(allocator);
+    defer allocator.free(project_name);
+
+    // Determine profile: from arg, from context.md detection, or default
+    var profile_key: []const u8 = "python"; // default
+    if (profile_name_arg.len > 0) {
+        profile_key = profile_name_arg;
+    } else {
+        // Try to detect from context.md profile field
+        const detected = detectProfile(allocator);
+        defer allocator.free(detected);
+        // Map display names back to profile keys
+        if (mem.eql(u8, detected, "Python Package")) {
+            profile_key = "python";
+        } else if (mem.eql(u8, detected, "Web Application (React + Vite)")) {
+            profile_key = "web-app";
+        } else if (mem.eql(u8, detected, "Zig CLI Tool")) {
+            profile_key = "zig-cli";
+        }
+    }
+
+    const profile = getProfile(profile_key) orelse {
+        print("Error: Unknown profile: {s}\n", .{profile_key});
+        print("Use --profile with one of: python, web-app, zig-cli\n", .{});
+        return;
+    };
+
+    const author = getDefaultAuthor(allocator);
+    defer allocator.free(author);
+
+    const vars = VariableMap{
+        .project_name = project_name,
+        .date = getCurrentDate(),
+        .author = author,
+        .profile = profile.display_name,
+        .output_dir = ".",
+    };
+
+    cprint(Color.bold, "\n🔄 Updating project files for: {s}\n", .{project_name});
+    cprint(Color.cyan, "   Profile:  {s}\n", .{profile.display_name});
+    cprint(Color.cyan, "   Version:  {s}\n\n", .{VERSION});
+
+    const cwd = fs.cwd();
+    var updated: usize = 0;
+    var skipped: usize = 0;
+
+    for (profile.files) |template_file| {
+        const target_path = try substituteVariables(allocator, template_file.target_path, vars);
+        defer allocator.free(target_path);
+
+        const content = try substituteVariables(allocator, template_file.content, vars);
+        defer allocator.free(content);
+
+        // Check if file exists and compare
+        const maybe_existing = readFileContent(allocator, cwd, target_path) catch null;
+        if (maybe_existing) |existing| {
+            defer allocator.free(existing);
+            if (contentEqual(existing, content)) {
+                cprint(Color.cyan, "⏭️  {s} (already up to date)\n", .{target_path});
+                skipped += 1;
+                continue;
+            }
+        }
+
+        // Write the file (create parent dirs if needed)
+        writeFile(cwd, target_path, content) catch |err| {
+            print("Error writing '{s}': {s}\n", .{ target_path, @errorName(err) });
+            continue;
+        };
+        cprint(Color.green, "✅ Updated {s}\n", .{target_path});
+        updated += 1;
+    }
+
+    print("\n", .{});
+    if (updated > 0) {
+        cprint(Color.green, "✅ Updated {d} file(s)", .{updated});
+        if (skipped > 0) {
+            cprint(Color.cyan, ", {d} already current", .{skipped});
+        }
+        print("\n", .{});
+    } else {
+        cprint(Color.green, "✅ All files are already up to date\n", .{});
+    }
+}
+
+// =============================================================================
 // Main Entry Point
 // =============================================================================
 
@@ -884,6 +1064,22 @@ pub fn main() !void {
 
     if (mem.eql(u8, first_arg, "--list")) {
         printProfiles();
+        return;
+    }
+
+    if (mem.eql(u8, first_arg, "--update")) {
+        // Parse optional --profile flag from remaining args
+        var update_profile_name: []const u8 = "";
+        var j: usize = 2;
+        while (j < args.len) : (j += 1) {
+            if (mem.eql(u8, args[j], "--profile") and j + 1 < args.len) {
+                j += 1;
+                update_profile_name = args[j];
+            }
+        }
+        updateProjectFiles(allocator, update_profile_name) catch |err| {
+            print("Error updating files: {s}\n", .{@errorName(err)});
+        };
         return;
     }
 
@@ -1141,6 +1337,7 @@ test "substituteVariables replaces all template variables" {
         .date = "2026-02-17",
         .author = "Test Author",
         .profile = "python",
+        .output_dir = "/test/output",
     };
     const result1 = try substituteVariables(allocator, content1, vars1);
     defer allocator.free(result1);
@@ -1153,6 +1350,7 @@ test "substituteVariables replaces all template variables" {
         .date = "2026-02-17",
         .author = "Author Name",
         .profile = "zig-cli",
+        .output_dir = "/my/project",
     };
     const result2 = try substituteVariables(allocator, content2, vars2);
     defer allocator.free(result2);
@@ -1165,6 +1363,7 @@ test "substituteVariables replaces all template variables" {
         .date = "2026-02-17",
         .author = "Author",
         .profile = "web-app",
+        .output_dir = "/repeat",
     };
     const result3 = try substituteVariables(allocator, content3, vars3);
     defer allocator.free(result3);
@@ -1177,6 +1376,7 @@ test "substituteVariables replaces all template variables" {
         .date = "2026-02-17",
         .author = "",
         .profile = "python",
+        .output_dir = "",
     };
     const result4 = try substituteVariables(allocator, content4, vars4);
     defer allocator.free(result4);

@@ -1,62 +1,79 @@
 # WHERE_AM_I — {{PROJECT_NAME}}
 
-> **Quick orientation for AI agents.** Last updated: {{DATE}}
+> **Product-level orientation.** Where does this project stand against its goals?
+>
+> This file tracks progress toward the product vision. For session-level context (what was I working on?), see `context.md`.
 
 ---
 
-## Current Project Phase
+## Project Health
 
 | Attribute | Value |
 |-----------|-------|
 | **Project** | {{PROJECT_NAME}} |
 | **Profile** | {{PROFILE}} |
-| **Phase** | Bootstrap |
-| **Sprint** | Sprint 1 |
-| **Status** | 🟡 Just scaffolded |
+| **Current Phase** | Phase 0 — Bootstrap |
+| **Overall Status** | 🟡 Just scaffolded |
+| **Last Updated** | {{DATE}} |
 
 ---
 
-## Last Session Summary
+## Progress Against Product Goals
 
-**{{DATE}} — Project Initialized**
+> Reference: `product-definition.md` for full success criteria.
 
-- ✅ Project scaffolded with `init-agent`
-- ✅ Documentation structure created
-- ✅ Git repository initialized
-- ✅ Ready for development
+### MVP Criteria
 
----
+| Criterion | Status | Notes |
+|-----------|--------|-------|
+| Core feature 1 | ⬜ Not started | |
+| Core feature 2 | ⬜ Not started | |
+| Basic documentation | ✅ Done | Scaffolded by init-agent |
 
-## Immediate Next Steps
+### Current Phase Goals
 
-### For the Human
-
-1. Review `product-definition.md` and update with your vision
-2. Edit `sprint-plan.md` with initial tasks
-3. Make first commit: `git add -A && git commit -m "Initial scaffold"`
-
-### For the AI Agent
-
-1. Read `agent.md` for project guardrails
-2. Read `product-definition.md` for context
-3. Read `sprint-plan.md` for current tasks
-4. Execute next task, then update this file
+| Goal | Status | Notes |
+|------|--------|-------|
+| Establish project structure | ✅ Done | |
+| Define product vision | ⬜ Not started | Update `product-definition.md` |
+| First working feature | ⬜ Not started | |
 
 ---
 
-## Current Context
+## Sprint Position
 
-```
-What's happening now:
-- Project just created, awaiting first tasks
-
-Blockers:
-- None
-
-Recent decisions:
-- Project scaffolded with {{PROFILE}} profile
-```
+| Sprint | Focus | Status |
+|--------|-------|--------|
+| Sprint 1 — Foundation | Core setup and first feature | 🟡 Planning |
 
 ---
 
-*Update this file at the end of every session.*
+## Product Risks & Blockers
+
+| Risk/Blocker | Impact | Status |
+|-------------|--------|--------|
+| Product definition not yet written | Can't validate direction | 🟡 Action needed |
+
+---
+
+## Key Decisions Made
+
+Decisions that affect product direction (for technical decisions, see `architecture.md`):
+
+| Decision | Rationale | Date |
+|----------|-----------|------|
+| {{PROFILE}} profile selected | Best fit for project goals | {{DATE}} |
+
+---
+
+## What "Done" Looks Like
+
+> Pull from `product-definition.md` once written. This section answers: "How do we know we've succeeded?"
+
+- [ ] MVP criteria met
+- [ ] Users can [core use case]
+- [ ] Documentation complete
+
+---
+
+*Update this file when project milestones are reached or product direction changes. This is your compass — `context.md` is your GPS.*
