@@ -130,6 +130,21 @@ Refactor from `--lang` flag to `--profile` system with layered templates.
 
 ---
 
+## Sprint 6 — Update Intelligence & Agent Completeness ✅ COMPLETE
+
+> v1.1.0 — Smart updates and better agent contracts
+
+### Tasks
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Auto-detect profile for `--update` (BI-001) | ✅ | Fallback inferencing from `pyproject.toml`, `package.json`, etc. |
+| Explicit Done Checklist in AGENTS.md (BI-002) | ✅ | Add checkable mode/verification checklist to template |
+
+**Deliverable:** Smoother `--update` UX and more robust agent contracts
+
+---
+
 ## Profile Registry (Planned)
 
 > **Note:** These are templates for generated projects, NOT project files.

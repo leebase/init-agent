@@ -4,7 +4,34 @@
 
 ---
 
-## 2026-02-17 — COMPILED AND TESTED ✅
+## 2026-02-19 — SPRINT 6 COMPLETE: UPDATE INTELLIGENCE ✅
+
+**v1.1.0 — Smart updates and AgentFlow integration**
+
+### What Was Built
+
+1. **`--update` Flag (BI-001)**
+   - Pushes template enhancements to existing initialized projects without overwriting user data.
+   - Automatically detects the project's profile signature (`pyproject.toml`, `package.json`, `build.zig`) so users just run `init-agent --update`.
+   - Respects `--profile` overrides and gracefully skips unchanged files.
+
+2. **AgentFlow Methodology Integration (BI-002)**
+   - Replaced generic documentation with structured **AgentFlow** methodology templates.
+   - Added `how-to-work-with-agentic-ai.md` as a definitive methodology guide.
+   - Replaced generic Definition of Done in `agent.md` with an explicit, copy-pasteable checklist linking testing commands to autonomy modes.
+   - Added `lees-process.md` and `sprint-review.md` (for external AI review) to all project templates.
+
+### Testing Results
+
+- ✅ `init-agent --update` properly detects `package.json` -> `web-app`.
+- ✅ Fails gracefully when run in an unknown directory without signature files or `--profile`.
+- ✅ Local `context.md` state properly preserved during methodology template updates.
+
+### Refactored Code
+- `src/main.zig` extended with profile-discovery loops and smarter fallback logic.
+- New `backlog/` artifacts appropriately categorized and schema documented.
+
+---
 
 **init-agent v0.1.0 successfully compiled with Zig 0.15!**
 

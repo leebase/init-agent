@@ -135,13 +135,18 @@ Do the smallest thing that works first. Verify it. Then build the next piece on 
 
 ### Definition of Done
 
-A task is only "done" when ALL of these are true:
+### Definition of Done
 
-- [ ] Code works (tests pass, app runs)
-- [ ] Tested As Lee (no obvious issues a user would hit)
-- [ ] Documentation updated (`context.md`, `WHERE_AM_I.md`, etc.)
-- [ ] Human can pick up where you left off (context is clear)
-- [ ] Changes committed and pushed
+A task is only "done" when ALL of these are true. Copy this checklist to your final `context.md` update or PR description:
+
+```markdown
+## Done Checklist
+- [ ] Mode acknowledged: worked within autonomy boundaries
+- [ ] Tests pass clean (run profile-specific tests)
+- [ ] Tested As Lee: ran the app as a user, fixed all issues
+- [ ] Updated: context.md, WHERE_AM_I.md, result-review.md, sprint-plan.md
+- [ ] Committed and pushed with descriptive message
+```
 
 ---
 

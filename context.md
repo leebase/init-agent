@@ -8,67 +8,46 @@
 
 | Attribute | Value |
 |-----------|-------|
-| **Phase** | Sprint 2 — Profile System |
-| **Mode** | 3 (Full autonomy for this project) |
-| **Last Updated** | 2026-02-17T15:00:00Z |
+| **Phase** | Sprint 6 — Update Intelligence |
+| **Mode** | 3 (Autonomous) |
+| **Last Updated** | 2026-02-19T17:58:00Z |
 
 ---
 
 ## What's Happening Now
 
 ### Current Focus
-Sprint 2 complete! Profile system implemented and tested. Ready for Sprint 3 (placeholder enhancements).
+Implementing BI-001 (Auto-detect profile for `--update`) to make template updates frictionless. BI-002 (Explicit Done checklist in templates) is already coded and approved.
 
-### Recently Completed (Sprint 2)
-- ✅ Created templates/common/ with 7 core agent kit files
-- ✅ Created templates/python/ profile (pyproject.toml, src layout)
-- ✅ Created templates/web-app/ profile (React + Vite + TypeScript)
-- ✅ Created templates/zig-cli/ profile (build.zig, main.zig)
-- ✅ Refactored CLI with profile registry system
-- ✅ Added `--profile`, `--list`, `--force`, `--author` flags
-- ✅ Implemented variable substitution ({{PROJECT_NAME}}, {{DATE}}, {{AUTHOR}})
-- ✅ All profiles tested and working
-- ✅ Updated README documentation
+### Recently Completed (Sprint 6)
+- ✅ Implemented `--update` flag to push template changes to existing projects
+- ✅ Made `--update` profile-aware (`--profile` flag)
+- ✅ Rewrote all common templates (AGENTS.md, WHERE_AM_I.md, sprint-review.md) to formally implement the **AgentFlow** methodology
+- ✅ Wrote comprehensive `how-to-work-with-agentic-ai.md` guide
+- ✅ Added `lees-process.md` and `sprint-review.md` to all profiles
+- ✅ Added explicit Definition of Done checklist to `agent.md` templates (BI-002)
 
-### Recently Completed (Post-v1.0)
-- ✅ Version stamping from git tags (via build.zig)
-- ✅ Automated changelog generation (scripts/changelog.sh)
-- ✅ Homebrew formula (homebrew/init-agent.rb)
-- ✅ Installation script (scripts/install.sh - curl | sh)
-- ✅ 18 integration tests (tests/integration.sh)
-- ✅ Version bumped to 1.0.0
-- ✅ **v1.1.0**: Added feedback.md template to all profiles
-
-### Next Steps (Sprint 5 - Release Pipeline)
-1. Version stamping from git tags
-2. Automated changelog generation
-3. Homebrew formula
-4. ✅ Installation script (curl | sh) - Created scripts/install.sh
-5. Integration tests for all profiles
-
-### Next Steps (Future Sprints)
-- Sprint 3: Placeholder substitution (`--name`, `--author`)
-- Sprint 4: Enhanced CLI (`--dry-run`, `--dir`, colored output)
-- Sprint 5: v1.0.0 release (Homebrew, install script)
-
----
-
-## Decisions Locked
-
+### Decisions Locked
 | Decision | Rationale | Date |
 |----------|-----------|------|
-| Language: Zig | Fast, portable, single binary, no runtime deps | 2026-02-17 |
-| Templates embedded in source | Self-contained binary, no file reading at runtime | 2026-02-17 |
-| Multi-language support | Different users prefer different languages | 2026-02-17 |
-| TinyClaw methodology | Proven in LeeClaw, reduces risk | 2026-02-17 |
-| Profile-based architecture | Cleaner than `--lang` flag, allows stacking | 2026-02-17 |
-| Template variable substitution | {{PROJECT_NAME}}, {{DATE}}, {{AUTHOR}} support | 2026-02-17 |
+| **AgentFlow Branding** | The methodology is now officially named AgentFlow throughout templates and docs | 2026-02-19 |
+| **Contract vs Status Files** | `--update` deliberately overwrites template files (`AGENTS.md`, `feedback.md`) but respects user data files (`context.md`, `sprint-plan.md`) | 2026-02-19 |
+| **Test As Lee** | Enshrined in the Development Loop as a required step before documentation | 2026-02-19 |
 
 ---
 
-## Active Issues
+## Next Actions Queue
 
-None yet.
+1. **[ACTIVE]** Implement auto-detect profile logic in `src/main.zig` for `--update` (BI-001)
+2. Build, test, and install the updated binary
+3. Test `--update` without `--profile` flag in a test directory
+4. Update `result-review.md` and complete Sprint 6
+
+---
+
+## Open Questions / Blockers
+
+- None currently.
 
 ---
 

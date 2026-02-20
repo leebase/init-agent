@@ -926,7 +926,8 @@ fn detectProjectName(allocator: std.mem.Allocator) ![]const u8 {
 }
 
 /// Detect profile from existing context.md or fall back to "python"
-fn detectProfile(allocator: std.mem.Allocator) []const u8 {
+/// Detect profile from existing context.md or return null if not found
+fn detectProfile(allocator: std.mem.Allocator) ?[]const u8 {
     const cwd = fs.cwd();
     const maybe_content = readFileContent(allocator, cwd, "context.md") catch null;
     if (maybe_content) |content| {
@@ -937,35 +938,59 @@ fn detectProfile(allocator: std.mem.Allocator) []const u8 {
             if (std.mem.indexOf(u8, after, "\n")) |end| {
                 const profile = std.mem.trim(u8, after[0..end], " \r\t");
                 if (profile.len > 0) {
-                    return allocator.dupe(u8, profile) catch "Python Package";
+                    return allocator.dupe(u8, profile) catch null;
                 }
             }
         }
     }
-    return allocator.dupe(u8, "Python Package") catch "Python Package";
+    return null;
+}
+
+/// Detect profile by checking for signature files in current directory
+fn detectProfileFromFiles() ?[]const u8 {
+    const cwd = fs.cwd();
+    if (fileExists(cwd, "package.json")) return "web-app";
+    if (fileExists(cwd, "build.zig")) return "zig-cli";
+    if (fileExists(cwd, "pyproject.toml")) return "python";
+    if (fileExists(cwd, "setup.py")) return "python";
+    return null;
 }
 
 fn updateProjectFiles(allocator: std.mem.Allocator, profile_name_arg: []const u8) !void {
     const project_name = try detectProjectName(allocator);
     defer allocator.free(project_name);
 
-    // Determine profile: from arg, from context.md detection, or default
-    var profile_key: []const u8 = "python"; // default
+    // Determine profile: from arg, from context.md detection, from signature files, or default to null
+    var profile_key_opt: ?[]const u8 = null;
+
     if (profile_name_arg.len > 0) {
-        profile_key = profile_name_arg;
+        profile_key_opt = profile_name_arg;
     } else {
-        // Try to detect from context.md profile field
-        const detected = detectProfile(allocator);
-        defer allocator.free(detected);
-        // Map display names back to profile keys
-        if (mem.eql(u8, detected, "Python Package")) {
-            profile_key = "python";
-        } else if (mem.eql(u8, detected, "Web Application (React + Vite)")) {
-            profile_key = "web-app";
-        } else if (mem.eql(u8, detected, "Zig CLI Tool")) {
-            profile_key = "zig-cli";
+        // Try to detect from context.md profile field first
+        if (detectProfile(allocator)) |detected| {
+            defer allocator.free(detected);
+            if (mem.eql(u8, detected, "Python Package")) {
+                profile_key_opt = "python";
+            } else if (mem.eql(u8, detected, "Web Application (React + Vite)")) {
+                profile_key_opt = "web-app";
+            } else if (mem.eql(u8, detected, "Zig CLI Tool")) {
+                profile_key_opt = "zig-cli";
+            }
+        }
+
+        // If context.md absent or profile unknown, fall back to testing files
+        if (profile_key_opt == null) {
+            if (detectProfileFromFiles()) |detected| {
+                profile_key_opt = detected;
+            }
         }
     }
+
+    const profile_key = profile_key_opt orelse {
+        print("Error: Could not automatically detect project profile.\n", .{});
+        print("Please specify one using: --update --profile <python|web-app|zig-cli>\n", .{});
+        return;
+    };
 
     const profile = getProfile(profile_key) orelse {
         print("Error: Unknown profile: {s}\n", .{profile_key});
