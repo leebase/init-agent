@@ -49,6 +49,16 @@ zig test src/main.zig
 └── README.md      # This file
 ```
 
+## Updating Templates
+
+To pull the latest AgentFlow templates into this project without overwriting your custom data, run:
+
+```bash
+init-agent --update
+```
+
+This will automatically detect the Zig CLI profile and refresh files like `AGENTS.md` and `lees-process.md`.
+
 ## License
 
 Add your license information here.

@@ -247,10 +247,10 @@ When templates improve (new Development Loop, better guardrails, etc.), push tho
 
 ```bash
 cd my-existing-project
-init-agent --update --profile python
+init-agent --update
 ```
 
-This updates **all template files** for the specified profile. Files that haven't changed are skipped automatically. It detects your project name from `context.md` and applies variable substitution.
+This updates **all template files** for your project. `init-agent` automatically detects your profile by looking for signature files (`pyproject.toml`, `package.json`, `build.zig`). Files that haven't changed are skipped automatically, and your local `context.md` state is preserved.
 
 ### If you're setting up manually:
 

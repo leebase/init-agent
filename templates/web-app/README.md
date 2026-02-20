@@ -57,6 +57,16 @@ Production files are output to the `dist/` directory.
 └── package.json     # Dependencies and scripts
 ```
 
+## Updating Templates
+
+To pull the latest AgentFlow templates into this project without overwriting your custom data, run:
+
+```bash
+init-agent --update
+```
+
+This will automatically detect the Web App profile and refresh files like `AGENTS.md` and `lees-process.md`.
+
 ## Next Steps
 
 1. Add your components to `src/`

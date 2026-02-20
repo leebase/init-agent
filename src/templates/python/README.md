@@ -39,6 +39,16 @@ black src/
 ruff check src/
 ```
 
+## Updating Templates
+
+To pull the latest AgentFlow templates into this project without overwriting your custom data, run:
+
+```bash
+init-agent --update
+```
+
+This will automatically detect the Python profile and refresh files like `AGENTS.md` and `lees-process.md`.
+
 ---
 
 Created on {{DATE}} by {{AUTHOR}}.
