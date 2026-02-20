@@ -194,6 +194,7 @@ init-agent implements the **AgentFlow** methodology for human-AI collaboration:
 3. **Development Loop** - Code → Test → Test As Lee → Fix → Loop → Document → Commit
 4. **Result Logging** - `result-review.md` tracks what was built and how to verify it
 5. **Template Updates** - `--update` pushes template improvements to existing projects
+6. **Agent Agnostic** - Works with Claude, ChatGPT, Gemini, and features native integration for Google DeepMind's Antigravity agents.
 
 ## Language Support
 

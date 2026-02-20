@@ -161,6 +161,18 @@ Because all state lives in markdown files (not conversation history), you can:
 
 The key rule: **always update `context.md` before switching.** It's the handoff document.
 
+### Google DeepMind (Antigravity) Agents
+
+Antigravity agents use a specific internal memory system (`task.md`, `implementation_plan.md`). When working with them, they follow this mapping protocol:
+
+| Internal Artifact | Project Document |
+|-------------------|------------------|
+| `task.md` | `sprint-plan.md` |
+| `implementation_plan.md` | `architecture.md` |
+| `walkthrough.md` | `result-review.md` |
+
+They will explicitly read your project files and map their internal state to them. This "handshake" ensures that even agents with rigid internal structures play nicely with AgentFlow.
+
 ---
 
 ## Autonomy Modes
