@@ -10,7 +10,6 @@ pub fn build(b: *std.Build) void {
     // Create options module
     const options = b.addOptions();
     options.addOption([]const u8, "version", version);
-    const options_module = options.createModule();
 
     const exe = b.addExecutable(.{
         .name = "init-agent",
@@ -18,7 +17,7 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    exe.root_module.addImport("build_options", options_module);
+    exe.root_module.addOptions("build_options", options);
 
     // Install the executable
     b.installArtifact(exe);
@@ -40,7 +39,7 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    exe_unit_tests.root_module.addImport("build_options", options_module);
+    exe_unit_tests.root_module.addOptions("build_options", options);
 
     const run_exe_unit_tests = b.addRunArtifact(exe_unit_tests);
     const test_step = b.step("test", "Run unit tests");

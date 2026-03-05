@@ -8,40 +8,41 @@
 
 | Attribute | Value |
 |-----------|-------|
-| **Phase** | Sprint 6 Complete / Ready for Sprint 7 |
+| **Phase** | Sprint 7 Complete / Ready for Sprint 8 |
 | **Mode** | 3 (Autonomous) |
-| **Last Updated** | 2026-02-19T23:30:00Z |
+| **Last Updated** | 2026-03-05T23:50:00Z |
 
 ---
 
 ## What's Happening Now
 
 ### Current Focus
-Session Wrap-up. Completed BI-001 verification and BI-003 integration.
+Session Wrap-up. Sprint 7 complete.
 
-### Recently Completed (Sprint 6 + Integration)
-- ✅ **Implemented BI-003 (Antigravity Integration)**: Updated `AGENTS.md` with artifact mapping protocol.
-- ✅ **Verified BI-001 (Auto-detect profile)**: Confirmed implementation and passed tests.
-- ✅ **Fixed Build**: Updated `build.zig` for Zig 0.13.0 compatibility.
-- ✅ Implemented `--update` flag to push template changes to existing projects
-- ✅ Made `--update` profile-aware (`--profile` flag)
-- ✅ Rewrote all common templates (AGENTS.md, WHERE_AM_I.md, sprint-review.md) to formally implement the **AgentFlow** methodology
-- ✅ Wrote comprehensive `how-to-work-with-agentic-ai.md` guide
+### Recently Completed (Sprint 7)
+- ✅ **AgentFlow Skills Decomposition**: Rewrote `templates/common/agent.md` as slim router (~140 lines → focused contract)
+- ✅ **4 High-Quality Skill Files**: Created `skills/development-loop.md`, `skills/test-as-lee.md`, `skills/documentation.md`, `skills/backlog.md` — opinionated, with examples and anti-patterns, not just outlines
+- ✅ **Zig Implementation**: Updated `main.zig` with `@embedFile` for all 4 skills, added to all 3 profile definitions, `skills/` directory created on scaffold
+- ✅ **--update Compatible**: Skill files treated as contract files — overwritten on `--update`, new `skills/` directory created automatically in old projects
+- ✅ **Dogfooded**: Project root `AGENTS.md` and `skills/` updated to new format
+- ✅ **Fixed 2 Runaway Process Bugs**: `promptFileAction()` and `--interactive` profile prompt both spun forever on stdin EOF; now exit gracefully — was likely cause of runaway instances on Mac Mini
+- ✅ **Fixed 3 Zig 0.13.0 Compat Issues**: `ArrayList.init`, `.deinit()`, `.append()`, `.toOwnedSlice()` all fixed to 0.13.0 API
 
 ### Decisions Locked
 | Decision | Rationale | Date |
 |----------|-----------|------|
-| **Antigravity Protocol** | Adopted explicit artifact mapping (`task.md` $\leftrightarrow$ `sprint-plan.md`) in `AGENTS.md` | 2026-02-19 |
-| **AgentFlow Branding** | The methodology is now officially named AgentFlow throughout templates and docs | 2026-02-19 |
-| **Contract vs Status Files** | `--update` deliberately overwrites template files (`AGENTS.md`, `feedback.md`) but respects user data files (`context.md`, `sprint-plan.md`) | 2026-02-19 |
+| **Trigger-based skill loading** | Agent.md maps situations to skills explicitly (not "load when relevant") | 2026-03-05 |
+| **Skills are contract files** | Overwritten by `--update` like AGENTS.md — keeps methodology upgradeable | 2026-03-05 |
+| **No profile-specific skills yet** | Generic skills first; profile-specific (e.g. python-testing.md) is Sprint 8 candidate | 2026-03-05 |
+| **EOF exits gracefully** | Interactive prompts now return `.skip` / use default on stdin EOF instead of spinning | 2026-03-05 |
 
 ---
 
 ## Next Actions Queue
 
-1.  **[PLAN]** Sprint 7 Planning - Review backlog and prioritize next features.
-2.  **[TEST]** Manual verification of generated projects with new templates (`init-agent test-project`).
-3.  **[DOCS]** Consider updating `README.md` with new features from Sprint 6 (`--update`).
+1. **[PLAN]** Sprint 8 Planning — review backlog for next features
+2. **[CONSIDER]** Profile-specific skills (e.g. `skills/python-testing.md`) as Sprint 8 candidate
+3. **[CONSIDER]** `{{TEST_COMMAND}}` / `{{BUILD_COMMAND}}` / `{{RUN_COMMAND}}` as new template variables for profile-specific skill content
 
 ---
 

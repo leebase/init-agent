@@ -90,6 +90,15 @@ const COMMON_LEES_PROCESS_MD = @embedFile("templates/common/lees-process.md");
 const COMMON_SPRINT_REVIEW_MD = @embedFile("templates/common/sprint-review.md");
 
 // =============================================================================
+// Embedded Templates - Skills
+// =============================================================================
+
+const SKILL_DEVELOPMENT_LOOP_MD = @embedFile("templates/common/skills/development-loop.md");
+const SKILL_TEST_AS_LEE_MD = @embedFile("templates/common/skills/test-as-lee.md");
+const SKILL_DOCUMENTATION_MD = @embedFile("templates/common/skills/documentation.md");
+const SKILL_BACKLOG_MD = @embedFile("templates/common/skills/backlog.md");
+
+// =============================================================================
 // Embedded Templates - Python Profile
 // =============================================================================
 
@@ -137,6 +146,10 @@ const PYTHON_PROFILE = Profile{
         .{ .target_path = "sprint-review.md", .content = COMMON_SPRINT_REVIEW_MD },
         .{ .target_path = "backlog/schema.md", .content = COMMON_BACKLOG_SCHEMA_MD },
         .{ .target_path = "backlog/template.md", .content = COMMON_BACKLOG_TEMPLATE_MD },
+        .{ .target_path = "skills/development-loop.md", .content = SKILL_DEVELOPMENT_LOOP_MD },
+        .{ .target_path = "skills/test-as-lee.md", .content = SKILL_TEST_AS_LEE_MD },
+        .{ .target_path = "skills/documentation.md", .content = SKILL_DOCUMENTATION_MD },
+        .{ .target_path = "skills/backlog.md", .content = SKILL_BACKLOG_MD },
         .{ .target_path = "README.md", .content = PYTHON_README_MD },
         .{ .target_path = "pyproject.toml", .content = PYTHON_PYPROJECT_TOML },
         .{ .target_path = "src/{{PROJECT_NAME}}/__init__.py", .content = PYTHON_SRC_INIT_PY },
@@ -145,6 +158,7 @@ const PYTHON_PROFILE = Profile{
     .directories = &[_][]const u8{
         "src/{{PROJECT_NAME}}",
         "tests",
+        "skills",
         "backlog/candidates",
         "backlog/approved",
         "backlog/parked",
@@ -167,6 +181,10 @@ const WEBAPP_PROFILE = Profile{
         .{ .target_path = "sprint-review.md", .content = COMMON_SPRINT_REVIEW_MD },
         .{ .target_path = "backlog/schema.md", .content = COMMON_BACKLOG_SCHEMA_MD },
         .{ .target_path = "backlog/template.md", .content = COMMON_BACKLOG_TEMPLATE_MD },
+        .{ .target_path = "skills/development-loop.md", .content = SKILL_DEVELOPMENT_LOOP_MD },
+        .{ .target_path = "skills/test-as-lee.md", .content = SKILL_TEST_AS_LEE_MD },
+        .{ .target_path = "skills/documentation.md", .content = SKILL_DOCUMENTATION_MD },
+        .{ .target_path = "skills/backlog.md", .content = SKILL_BACKLOG_MD },
         .{ .target_path = "README.md", .content = WEBAPP_README_MD },
         .{ .target_path = "package.json", .content = WEBAPP_PACKAGE_JSON },
         .{ .target_path = "tsconfig.json", .content = WEBAPP_TSCONFIG_JSON },
@@ -178,6 +196,7 @@ const WEBAPP_PROFILE = Profile{
     .directories = &[_][]const u8{
         "src",
         "public",
+        "skills",
         "backlog/candidates",
         "backlog/approved",
         "backlog/parked",
@@ -200,12 +219,17 @@ const ZIGCLI_PROFILE = Profile{
         .{ .target_path = "sprint-review.md", .content = COMMON_SPRINT_REVIEW_MD },
         .{ .target_path = "backlog/schema.md", .content = COMMON_BACKLOG_SCHEMA_MD },
         .{ .target_path = "backlog/template.md", .content = COMMON_BACKLOG_TEMPLATE_MD },
+        .{ .target_path = "skills/development-loop.md", .content = SKILL_DEVELOPMENT_LOOP_MD },
+        .{ .target_path = "skills/test-as-lee.md", .content = SKILL_TEST_AS_LEE_MD },
+        .{ .target_path = "skills/documentation.md", .content = SKILL_DOCUMENTATION_MD },
+        .{ .target_path = "skills/backlog.md", .content = SKILL_BACKLOG_MD },
         .{ .target_path = "README.md", .content = ZIGCLI_README_MD },
         .{ .target_path = "build.zig", .content = ZIGCLI_BUILD_ZIG },
         .{ .target_path = "src/main.zig", .content = ZIGCLI_SRC_MAIN_ZIG },
     },
     .directories = &[_][]const u8{
         "src",
+        "skills",
         "backlog/candidates",
         "backlog/approved",
         "backlog/parked",
@@ -424,12 +448,12 @@ fn hasUnresolvedPlaceholders(content: []const u8) bool {
 
 /// Extract and collect unresolved placeholder names from content
 fn collectUnresolvedPlaceholders(allocator: std.mem.Allocator, content: []const u8) ![][]const u8 {
-    var placeholders: std.ArrayList([]const u8) = .empty;
+    var placeholders = std.ArrayList([]const u8).init(allocator);
     errdefer {
         for (placeholders.items) |p| {
             allocator.free(p);
         }
-        placeholders.deinit(allocator);
+        placeholders.deinit();
     }
 
     var i: usize = 0;
@@ -442,7 +466,7 @@ fn collectUnresolvedPlaceholders(allocator: std.mem.Allocator, content: []const 
                 if (content[i] == '}' and i + 1 < content.len and content[i + 1] == '}') {
                     const placeholder = content[start..i + 2];
                     const duped = try allocator.dupe(u8, placeholder);
-                    try placeholders.append(allocator, duped);
+                    try placeholders.append(duped);
                     i += 2;
                     end = i;
                     break;
@@ -458,7 +482,7 @@ fn collectUnresolvedPlaceholders(allocator: std.mem.Allocator, content: []const 
         }
     }
 
-    return placeholders.toOwnedSlice(allocator);
+    return placeholders.toOwnedSlice();
 }
 
 // =============================================================================
@@ -568,7 +592,11 @@ fn promptFileAction(file_path: []const u8) FileAction {
             return .skip;
         };
 
-        if (bytes_read == 0) continue;
+        // EOF on stdin — bail out gracefully instead of spinning forever
+        if (bytes_read == 0) {
+            print("\nNo input available, defaulting to skip\n", .{});
+            return .skip;
+        }
 
         const input = std.mem.trim(u8, buf[0..bytes_read], " \n\r\t");
         if (input.len == 0) continue;
@@ -1236,7 +1264,7 @@ pub fn main() !void {
         var buf: [256]u8 = undefined;
         while (true) {
             const bytes_read = stdin.read(&buf) catch 0;
-            if (bytes_read == 0) break;
+            if (bytes_read == 0) break; // EOF — use default profile
             const input = std.mem.trim(u8, buf[0..bytes_read], " \n\r\t");
             if (input.len == 0) break; // Use default
             if (getProfile(input) != null) {
