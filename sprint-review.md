@@ -1,4 +1,4 @@
-# init-agent Sprint Review
+# {{PROJECT_NAME}} Sprint Review
 
 > **External AI Review.** Hand sprint results to a fresh AI for outside perspective.
 >
@@ -33,7 +33,7 @@ The AI that built the code is biased by its own reasoning. A fresh AI will:
 
 ### Sprint {{NUMBER}} — Review by {{REVIEWER}}
 
-**Date**: 2026-02-17
+**Date**: {{DATE}}
 **Status**: 🟡 Pending / 🟢 Actioned / 🔴 Declined
 
 **What Was Delivered**:
@@ -41,6 +41,10 @@ The AI that built the code is biased by its own reasoning. A fresh AI will:
 | Feature | Notes |
 |---------|-------|
 | Feature 1 | Description |
+
+**Code Review**:
+- Link to review file: `code-reviews/review-YYYY-MM-DD.md`
+- Blockers addressed: Yes / No
 
 **Findings**:
 

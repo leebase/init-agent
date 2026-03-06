@@ -42,6 +42,10 @@ The AI that built the code is biased by its own reasoning. A fresh AI will:
 |---------|-------|
 | Feature 1 | Description |
 
+**Code Review**:
+- Link to review file: `code-reviews/review-YYYY-MM-DD.md`
+- Blockers addressed: Yes / No
+
 **Findings**:
 
 1. **[CATEGORY] Brief description**

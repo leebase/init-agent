@@ -72,10 +72,11 @@
 ## Definition of Done
 
 - [ ] All sprint tasks completed
-- [ ] Code reviewed
 - [ ] Tests pass
 - [ ] Documentation updated
 - [ ] `result-review.md` updated
+- [ ] Code reviewed: ran `skills/code-review.md` and saved output
+- [ ] External review: updated `sprint-review.md` and handed off to fresh AI
 
 ---
 

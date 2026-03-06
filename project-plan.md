@@ -1,155 +1,83 @@
-# init-agent Project Plan
-
-> **Strategic roadmap** — stable, long-term planning document
->
-> For tactical execution, see `sprint-plan.md`
+# {{PROJECT_NAME}} Sprint Plan
 
 ---
 
-## Project Overview
+## Sprint Status Dashboard
 
-**init-agent** is [describe the project in one sentence].
-
-The philosophy is **TinyClaw**:
-
-> Build the smallest useful primitives first. Validate before scaling.
-
----
-
-## Objectives
-
-### Primary Objective
-[What is the main goal of this project?]
-
-### Secondary Objectives
-- [Objective 1]
-- [Objective 2]
-- [Objective 3]
+| Attribute | Value |
+|-----------|-------|
+| **Current Sprint** | Sprint 1 — Foundation |
+| **Version Target** | v0.1.0 |
+| **Last Updated** | {{DATE}} |
+| **Status** | 🟡 Planning |
 
 ---
 
-## Non-Negotiable Constraints
+## Sprint 1 — Foundation
 
-- [Constraint 1]
-- [Constraint 2]
-- [Constraint 3]
+> v0.1.0 — Core functionality and project setup
 
----
+### Goals
 
-## Development Phases
+- Establish project structure
+- Implement core features
+- Set up testing and CI
 
-### Phase 0 — Research / Bootstrap
+### Tasks
 
-**Status**: ACTIVE
-
-**Goals**:
-- [Goal 1]
-- [Goal 2]
-
-**Deliverables**:
-- [Deliverable 1]
-- [Deliverable 2]
+| Task | Status | Notes |
+|------|--------|-------|
+| Project structure | ⬜ | Set up directories |
+| Core implementation | ⬜ | Main functionality |
+| Tests | ⬜ | Unit/integration tests |
+| Documentation | ⬜ | README, API docs |
+| CI/CD setup | ⬜ | GitHub Actions |
 
 ---
 
-### Phase 1 — Core Foundation
+## Sprint 2 — Enhancement
 
-**Goal**: [What does success look like?]
+> v0.2.0 — Feature expansion
 
-**Core components**:
-1. [Component 1]
-2. [Component 2]
+### Goals
 
-**Success Criteria**:
-- [Criterion 1]
-- [Criterion 2]
+- Add secondary features
+- Improve user experience
+- Optimize performance
 
----
+### Tasks
 
-### Phase 2 — Feature Expansion
-
-**Goal**: [What does success look like?]
-
-**Components**:
-- [Component 1]
-- [Component 2]
-
-**Success Criteria**:
-- [Criterion 1]
+| Task | Status | Notes |
+|------|--------|-------|
+| Feature A | ⬜ | |
+| Feature B | ⬜ | |
+| Performance tuning | ⬜ | |
+| Documentation updates | ⬜ | |
 
 ---
 
-### Phase 3 — Integration & Polish
+## Backlog
 
-**Goal**: [What does success look like?]
+### Candidates (Future Ideas)
 
-**Success Criteria**:
-- [Criterion 1]
+- [ ] Idea 1
+- [ ] Idea 2
 
----
+### Parked (Deferred)
 
-### Phase 4 — Advanced / Future (Optional)
-
-**Potential**:
-- [Future idea 1]
-- [Future idea 2]
-
-*Not required for initial success.*
+- [ ] Deferred item — reason: resources
 
 ---
 
-## Architecture Principles
+## Definition of Done
 
-1. **Tiny First** — smallest viable implementation
-2. **Explicit State** — no hidden behavior
-3. **Human Authority** — autonomy with oversight
-4. **Audit Everything** — reproducible history
-5. **Artifacts Over Chat** — durable outputs
-
----
-
-## Core Components
-
-### Data Stores
-- `context.md` — session working memory
-- `result-review.md` — running log of completed work
-- `sprint-plan.md` — tactical execution plan
-- `product-definition.md` — vision and constraints
+- [ ] All sprint tasks completed
+- [ ] Tests pass
+- [ ] Documentation updated
+- [ ] `result-review.md` updated
+- [ ] Code reviewed: ran `skills/code-review.md` and saved output
+- [ ] External review: updated `sprint-review.md` and handed off to fresh AI
 
 ---
 
-## Risks
-
-| Risk | Mitigation |
-|------|------------|
-| Scope creep | TinyClaw discipline |
-| Over-complex architecture | Phase gating |
-| [Add more] | [Add mitigation] |
-
----
-
-## Success Metrics
-
-- [Metric 1]
-- [Metric 2]
-- [Metric 3]
-
----
-
-## Current Status
-
-**Phase**: [Current phase]
-**Mode**: [Current mode]
-**Next Milestone**: [What comes next]
-
----
-
-## Guiding Philosophy
-
-> [Your project philosophy statement]
-
-Keep implementations minimal. Validate before scaling.
-
----
-
-*End of Project Plan*
+*End of Sprint Plan*

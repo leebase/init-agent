@@ -4,100 +4,125 @@
 
 ---
 
-## Files to Update and When
+## Why This Matters
 
-| File | Update when... | Notes |
-|------|----------------|-------|
-| `context.md` | Every session end | Current state, next actions, decisions locked |
-| `result-review.md` | Something meaningful was built | Full entry at the TOP |
-| `sprint-plan.md` | Tasks complete or status changes | Mark done, update notes |
-| `WHERE_AM_I.md` | Sprint boundary or major pivot | Phase, sprint position |
-| `architecture.md` | A technical decision was made | Decision + rationale + alternatives rejected |
-| `README.md` | CLI interface or flags changed | Usage examples, new flags |
-| `AGENTS.md` | Conventions or guardrails changed | This file |
-| `skills/*.md` | A skill's content is stale | These files |
+Documentation is not clerical work. It is the **handoff note** that lets the next session — any LLM, any human — pick up where you left off without confusion. A good session with bad documentation is a net negative: you built something that will be misunderstood or duplicated.
 
 ---
 
-## Template Sync (init-agent specific)
+## What to Update and When
 
-If you modified any skill or template, confirm both copies are in sync:
+| File | Update when... | What to write |
+|------|----------------|---------------|
+| `context.md` | Every session end | Current state, next actions queue, decisions locked |
+| `result-review.md` | You completed something meaningful | What was built, why it matters, how to verify it |
+| `sprint-plan.md` | Tasks complete or status changes | Mark tasks done, update notes |
+| `WHERE_AM_I.md` | A milestone is reached or direction shifts | Phase, sprint position, any pivots |
+| `architecture.md` | You made a technical decision | Decision, rationale, alternatives rejected |
+| `AGENTS.md` | Conventions or guardrails changed | This file |
+| `README.md` | User-facing behavior changed | Usage examples, new flags, changed behavior |
+| `code-reviews/*.md` | End of sprint | Output of `skills/code-review.md` |
 
-```bash
-diff templates/common/agent.md src/templates/common/agent.md
-diff templates/common/skills/development-loop.md src/templates/common/skills/development-loop.md
-# etc. for any file you touched
-```
-
-If they differ — sync `src/templates/` from `templates/` before committing.
+**If in doubt, update.** Over-documentation is recoverable. Under-documentation causes the next agent to re-discover your work the hard way.
 
 ---
 
 ## How to Write a Good `context.md` Update
 
-**Bad:**
+A bad `context.md` looks like:
 ```
-Working on sprint 8 stuff. Some things done.
+## What's Happening Now
+Working on the project. Some things done.
 ```
 
-**Good:**
+A good `context.md` looks like:
 ```
 ## What's Happening Now
 
 ### Current Focus
-Added profile-specific skill variables to all 3 profiles.
+Adding --dry-run support to the scaffold command.
 
 ### Recently Completed
-- ✅ Added {{TEST_COMMAND}} substitution for python profile
-- ✅ All 18 integration tests pass
-- ✅ Smoke tested --profile python, web-app, zig-cli
+- ✅ Implemented flag parsing for --dry-run
+- ✅ Added dry-run output mode to createScaffold()
+- ✅ All tests pass, smoke tested manually
 
 ### Decisions Locked
 | Decision | Rationale | Date |
 |---|---|---|
-| TEST_COMMAND per profile | Avoids generic placeholder in skills | 2026-03-05 |
+| Dry-run does not create the output dir | Keeps state clean; users can inspect without side effects | {{DATE}} |
 
 ### Next Actions Queue
-1. [TEST] Run integration.sh on all platforms
-2. [DOCS] Update README with new skill variables
+1. [TEST] Verify dry-run output matches actual scaffold output
+2. [DOCS] Update README with --dry-run usage example
+3. [COMMIT] Commit once docs are done
 ```
 
-The test: could an agent with zero prior context read this and know exactly what to do next?
+The test: could an agent with no prior context read this and know exactly what to do next?
 
 ---
 
 ## How to Write a Good `result-review.md` Entry
 
-Add at the **top**. Structure:
+Add new entries at the **top** of the file. Use this structure:
 
 ```markdown
-## YYYY-MM-DD — [Short description]
+## [DATE] — [Short description of what was built]
 
 ### What Was Built
 [1–3 sentences. What exists now that didn't before.]
 
 ### Why It Matters
-[What problem this solves or enables.]
+[1–2 sentences. What problem does this solve or what does it enable?]
 
 ### How to Verify
+[Step-by-step commands or actions to confirm it works. Be specific enough
+that someone who didn't build it can verify it.]
+
 \`\`\`bash
-/home/lee/zig/zig build -Doptimize=ReleaseFast
-./zig-out/bin/init-agent test-proj --profile python --force
-ls test-proj/skills/
-rm -rf test-proj
+# Example verification
+{{BUILD_COMMAND}}
+[specific command that demonstrates the feature]
 \`\`\`
 ```
 
 ---
 
-## Commit Message Format
+## How to Write a Good `architecture.md` Entry
 
-```bash
-git add -A -- ':!tmp-init-agent-smoke' ':!dist/*.tar.gz'
-git commit -m "feat: short description of what changed"
+Architecture decisions are **irreversible enough to warrant a record**. If you made a choice that someone might later question or undo without understanding the tradeoff, document it:
+
+```markdown
+## [DATE] — [Decision title]
+
+**Decision:** [What you chose]
+
+**Rationale:** [Why this was the right call given the constraints]
+
+**Alternatives rejected:** [What else was considered and why it lost]
+
+**Consequences:** [What this makes easier and what it makes harder]
 ```
 
-**Good:** `feat: add code-review skill to all profiles with code-reviews/ scaffold dir`
-**Bad:** `update`, `wip`, `more changes`
+Don't document trivial decisions. Document ones that would cause confusion if someone found the code six months from now without context.
 
-*Last updated: 2026-03-05*
+---
+
+## The Commit Is Part of Documentation
+
+A good commit message is documentation:
+
+```bash
+git commit -m "feat: add --dry-run flag to scaffold and update commands"
+```
+
+A bad commit message breaks the history:
+```bash
+git commit -m "stuff"
+```
+
+The commit log is the first place a new contributor looks. Make it readable.
+
+---
+
+*Generated by init-agent on {{DATE}}*

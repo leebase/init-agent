@@ -19,7 +19,9 @@ Documentation is not clerical work. It is the **handoff note** that lets the nex
 | `sprint-plan.md` | Tasks complete or status changes | Mark tasks done, update notes |
 | `WHERE_AM_I.md` | A milestone is reached or direction shifts | Phase, sprint position, any pivots |
 | `architecture.md` | You made a technical decision | Decision, rationale, alternatives rejected |
+| `AGENTS.md` | Conventions or guardrails changed | This file |
 | `README.md` | User-facing behavior changed | Usage examples, new flags, changed behavior |
+| `code-reviews/*.md` | End of sprint | Output of `skills/code-review.md` |
 
 **If in doubt, update.** Over-documentation is recoverable. Under-documentation causes the next agent to re-discover your work the hard way.
 
