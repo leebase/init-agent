@@ -312,14 +312,14 @@ fn printUsage() void {
     print("  --profile <name>    Project profile: python, web-app, zig-cli (default: python)\n", .{});
     print("  --dir <path>        Output directory (default: ./<project-name>)\n", .{});
     print("  --author <name>     Author name (default: from git config or 'Anonymous')\n", .{});
-    print("  --force             Overwrite existing files (no prompt)\n", .{});
+    print("  --force             Overwrite refreshable files without prompting\n", .{});
     print("  --skip-existing     Skip existing files without prompting\n", .{});
     print("  --dry-run           Print what would be created without creating files\n", .{});
     print("  --verbose           Show detailed logging\n", .{});
     print("  --interactive       Prompt for missing values interactively\n", .{});
     print("  --no-git            Skip git initialization\n", .{});
     print("  --list              List available profiles\n", .{});
-    print("  --update            Update all template files for a profile in current dir\n", .{});
+    print("  --update            Refresh contract files (AGENTS.md and skills/*) in current dir\n", .{});
     print("  -h, --help          Show this help\n", .{});
     print("  -v, --version       Show version\n\n", .{});
     print("Examples:\n", .{});
@@ -330,7 +330,8 @@ fn printUsage() void {
     print("  init-agent my-cli --profile zig-cli --force\n", .{});
     print("  init-agent my-cli --profile zig-cli --skip-existing\n", .{});
     print("  init-agent my-project --dry-run --verbose\n", .{});
-    print("  init-agent my-project --interactive\n\n", .{});
+    print("  init-agent my-project --interactive\n", .{});
+    print("  init-agent --update --profile python\n\n", .{});
 }
 
 fn printVersion() void {
@@ -552,6 +553,28 @@ fn contentEqual(a: []const u8, b: []const u8) bool {
     return std.mem.eql(u8, a, b);
 }
 
+fn isContractFile(path: []const u8) bool {
+    return std.mem.eql(u8, path, "AGENTS.md") or std.mem.startsWith(u8, path, "skills/");
+}
+
+fn isContractDirectory(path: []const u8) bool {
+    return std.mem.eql(u8, path, "skills") or std.mem.startsWith(u8, path, "skills/");
+}
+
+fn isManagedProjectDir(dir: fs.Dir) bool {
+    return fileExists(dir, "AGENTS.md") or
+        fileExists(dir, "context.md") or
+        fileExists(dir, "WHERE_AM_I.md") or
+        fileExists(dir, "result-review.md") or
+        fileExists(dir, "skills");
+}
+
+fn isManagedProjectPath(path: []const u8) bool {
+    var dir = fs.cwd().openDir(path, .{}) catch return false;
+    defer dir.close();
+    return isManagedProjectDir(dir);
+}
+
 /// Print a simple diff between two contents
 fn printDiff(allocator: std.mem.Allocator, old_content: []const u8, new_content: []const u8, file_path: []const u8) void {
     _ = allocator;
@@ -720,19 +743,7 @@ fn createScaffold(config: Config) ScaffoldError!void {
     var batch = BatchState{};
 
     const exists = directoryExists(config.output_dir);
-
-    // If force flag is set and directory exists, remove it entirely
-    if (exists and config.force) {
-        if (config.dry_run) {
-            print("[DRY RUN] Would remove existing directory: {s}\n", .{config.output_dir});
-        } else {
-            removeDirectoryRecursive(config.output_dir) catch |err| {
-                print("Error removing existing directory: {s}\n", .{@errorName(err)});
-                return ScaffoldError.IoError;
-            };
-            config.logVerbose("Removed existing directory: {s}\n", .{config.output_dir});
-        }
-    }
+    const is_existing_managed_project = exists and isManagedProjectPath(config.output_dir);
 
     // Prepare variables for substitution
     const date = getCurrentDate(allocator);
@@ -751,12 +762,15 @@ fn createScaffold(config: Config) ScaffoldError!void {
         for (profile.directories) |dir_template| {
             const dir_path = try substituteVariables(allocator, dir_template, vars);
             defer allocator.free(dir_path);
+            if (is_existing_managed_project and !isContractDirectory(dir_path)) {
+                continue;
+            }
             print("[DRY RUN] Would create directory: {s}/{s}\n", .{ config.output_dir, dir_path });
         }
         // In dry-run, skip actual directory operations and go straight to file preview
     } else {
         // Create output directory if it doesn't exist
-        if (!exists or config.force) {
+        if (!exists) {
             fs.cwd().makeDir(config.output_dir) catch |err| {
                 print("Error creating directory: {s}\n", .{@errorName(err)});
                 return ScaffoldError.IoError;
@@ -776,6 +790,10 @@ fn createScaffold(config: Config) ScaffoldError!void {
             const dir_path = try substituteVariables(allocator, dir_template, vars);
             defer allocator.free(dir_path);
 
+            if (is_existing_managed_project and !isContractDirectory(dir_path)) {
+                continue;
+            }
+
             project_dir.makePath(dir_path) catch |err| {
                 if (err != error.PathAlreadyExists) {
                     print("Error creating directory '{s}': {s}\n", .{ dir_path, @errorName(err) });
@@ -789,6 +807,11 @@ fn createScaffold(config: Config) ScaffoldError!void {
         for (profile.files) |template_file| {
             const target_path = try substituteVariables(allocator, template_file.target_path, vars);
             defer allocator.free(target_path);
+
+            if (is_existing_managed_project and !isContractFile(target_path) and fileExists(project_dir, target_path)) {
+                print("🔒 Preserved {s}\n", .{target_path});
+                continue;
+            }
 
             const content = try substituteVariables(allocator, template_file.content, vars);
             errdefer allocator.free(content);
@@ -920,6 +943,10 @@ fn createScaffold(config: Config) ScaffoldError!void {
         const target_path = try substituteVariables(allocator, template_file.target_path, vars);
         defer allocator.free(target_path);
 
+        if (is_existing_managed_project and !isContractFile(target_path)) {
+            continue;
+        }
+
         const content = try substituteVariables(allocator, template_file.content, vars);
         defer allocator.free(content);
 
@@ -958,10 +985,9 @@ fn createScaffold(config: Config) ScaffoldError!void {
 // =============================================================================
 
 /// Detect project name from existing context.md or fall back to directory name
-fn detectProjectName(allocator: std.mem.Allocator) ![]const u8 {
+fn detectProjectName(allocator: std.mem.Allocator, dir: fs.Dir, fallback_dir_name: []const u8) ![]const u8 {
     // Try to read project name from context.md header
-    const cwd = fs.cwd();
-    const maybe_content = readFileContent(allocator, cwd, "context.md") catch null;
+    const maybe_content = readFileContent(allocator, dir, "context.md") catch null;
     if (maybe_content) |content| {
         defer allocator.free(content);
         // Look for "# <name> Session Context" pattern
@@ -976,17 +1002,12 @@ fn detectProjectName(allocator: std.mem.Allocator) ![]const u8 {
         }
     }
 
-    // Fall back to current directory name
-    var path_buf: [std.fs.max_path_bytes]u8 = undefined;
-    const cwd_path = try std.process.getCwd(&path_buf);
-    const dir_name = std.fs.path.basename(cwd_path);
-    return try allocator.dupe(u8, dir_name);
+    return try allocator.dupe(u8, fallback_dir_name);
 }
 
 /// Detect profile from existing context.md or return null if not found
-fn detectProfile(allocator: std.mem.Allocator) ?[]const u8 {
-    const cwd = fs.cwd();
-    const maybe_content = readFileContent(allocator, cwd, "context.md") catch null;
+fn detectProfile(allocator: std.mem.Allocator, dir: fs.Dir) ?[]const u8 {
+    const maybe_content = readFileContent(allocator, dir, "context.md") catch null;
     if (maybe_content) |content| {
         defer allocator.free(content);
         // Look for "**Profile**: <name>" pattern
@@ -1004,17 +1025,35 @@ fn detectProfile(allocator: std.mem.Allocator) ?[]const u8 {
 }
 
 /// Detect profile by checking for signature files in current directory
-fn detectProfileFromFiles() ?[]const u8 {
-    const cwd = fs.cwd();
-    if (fileExists(cwd, "package.json")) return "web-app";
-    if (fileExists(cwd, "build.zig")) return "zig-cli";
-    if (fileExists(cwd, "pyproject.toml")) return "python";
-    if (fileExists(cwd, "setup.py")) return "python";
+fn detectProfileFromFiles(dir: fs.Dir) ?[]const u8 {
+    if (fileExists(dir, "package.json")) return "web-app";
+    if (fileExists(dir, "build.zig")) return "zig-cli";
+    if (fileExists(dir, "pyproject.toml")) return "python";
+    if (fileExists(dir, "setup.py")) return "python";
     return null;
 }
 
 fn updateProjectFiles(allocator: std.mem.Allocator, profile_name_arg: []const u8, update_dir: []const u8) !void {
-    const project_name = try detectProjectName(allocator);
+    var opened_target_dir: ?fs.Dir = null;
+    const target_dir = if (update_dir.len > 0) blk: {
+        const dir = fs.cwd().openDir(update_dir, .{}) catch |err| {
+            print("Error: Cannot open directory '{s}': {s}\n", .{ update_dir, @errorName(err) });
+            return;
+        };
+        opened_target_dir = dir;
+        break :blk opened_target_dir.?;
+    } else fs.cwd();
+    defer if (opened_target_dir) |*dir| dir.close();
+
+    const fallback_project_name = if (update_dir.len > 0)
+        std.fs.path.basename(std.mem.trimRight(u8, update_dir, "/"))
+    else blk: {
+        var path_buf: [std.fs.max_path_bytes]u8 = undefined;
+        const cwd_path = try std.process.getCwd(&path_buf);
+        break :blk std.fs.path.basename(cwd_path);
+    };
+
+    const project_name = try detectProjectName(allocator, target_dir, fallback_project_name);
     defer allocator.free(project_name);
 
     // Determine profile: from arg, from context.md detection, from signature files, or default to null
@@ -1024,7 +1063,7 @@ fn updateProjectFiles(allocator: std.mem.Allocator, profile_name_arg: []const u8
         profile_key_opt = profile_name_arg;
     } else {
         // Try to detect from context.md profile field first
-        if (detectProfile(allocator)) |detected| {
+        if (detectProfile(allocator, target_dir)) |detected| {
             defer allocator.free(detected);
             if (mem.eql(u8, detected, "Python Package")) {
                 profile_key_opt = "python";
@@ -1037,7 +1076,7 @@ fn updateProjectFiles(allocator: std.mem.Allocator, profile_name_arg: []const u8
 
         // If context.md absent or profile unknown, fall back to testing files
         if (profile_key_opt == null) {
-            if (detectProfileFromFiles()) |detected| {
+            if (detectProfileFromFiles(target_dir)) |detected| {
                 profile_key_opt = detected;
             }
         }
@@ -1072,12 +1111,6 @@ fn updateProjectFiles(allocator: std.mem.Allocator, profile_name_arg: []const u8
     cprint(Color.cyan, "   Profile:  {s}\n", .{profile.display_name});
     cprint(Color.cyan, "   Version:  {s}\n\n", .{VERSION});
 
-    const target_dir = if (update_dir.len > 0) blk: {
-        break :blk fs.cwd().openDir(update_dir, .{}) catch |err| {
-            print("Error: Cannot open directory '{s}': {s}\n", .{ update_dir, @errorName(err) });
-            return;
-        };
-    } else fs.cwd();
     const cwd = target_dir;
     var updated: usize = 0;
     var skipped: usize = 0;
@@ -1085,6 +1118,10 @@ fn updateProjectFiles(allocator: std.mem.Allocator, profile_name_arg: []const u8
     for (profile.files) |template_file| {
         const target_path = try substituteVariables(allocator, template_file.target_path, vars);
         defer allocator.free(target_path);
+
+        if (!isContractFile(target_path)) {
+            continue;
+        }
 
         const content = try substituteVariables(allocator, template_file.content, vars);
         defer allocator.free(content);
@@ -1335,7 +1372,7 @@ pub fn main() !void {
     if (config.dry_run) {
         cprint(Color.yellow, "   Mode:     dry-run (preview only)\n", .{});
     } else if (config.force) {
-        cprint(Color.red, "   Mode:     force (overwrite all)\n", .{});
+        cprint(Color.red, "   Mode:     force (overwrite refreshable files)\n", .{});
     } else if (config.skip_existing) {
         cprint(Color.yellow, "   Mode:     skip existing\n", .{});
     } else {

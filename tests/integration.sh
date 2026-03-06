@@ -298,9 +298,9 @@ test_author_substitution_works() {
     cleanup "$temp_dir"
 }
 
-# Test: Force overwrites existing files
-test_force_overwrites_existing() {
-    local test_name="force_overwrites_existing"
+# Test: Force only refreshes contract files in existing managed projects
+test_force_refreshes_only_contract_files() {
+    local test_name="force_refreshes_only_contract_files"
     local temp_dir
     temp_dir=$(create_temp_dir)
     local project_dir="$temp_dir/force-test"
@@ -310,26 +310,82 @@ test_force_overwrites_existing() {
     # First run to create the project
     "$BINARY" force-test --profile python --dir "$project_dir" --no-git --author "First Author"
     
-    # Modify a file
-    echo "MODIFIED CONTENT" > "$project_dir/README.md"
-    
-    # Store original file count
-    local original_file_count
-    original_file_count=$(find "$project_dir" -type f | wc -l)
+    # Modify contract and stateful files
+    echo "OLD AGENT CONTENT" > "$project_dir/AGENTS.md"
+    echo "OLD SKILL CONTENT" > "$project_dir/skills/development-loop.md"
+    echo "PRESERVE CONTEXT" > "$project_dir/context.md"
+    echo "PRESERVE README" > "$project_dir/README.md"
     
     # Second run with --force
     "$BINARY" force-test --profile python --dir "$project_dir" --no-git --force --author "Second Author"
     
-    # Check that the file was overwritten (not the modified content)
     local result=0
-    if grep -q "MODIFIED CONTENT" "$project_dir/README.md" 2>/dev/null; then
-        echo -e "  ${RED}FAIL:${NC} File was not overwritten with --force"
-        result=1
-    fi
+    assert_file_contains "$project_dir/AGENTS.md" "Agent Guide" || result=1
+    assert_file_not_contains "$project_dir/AGENTS.md" "OLD AGENT CONTENT" || result=1
+    assert_file_contains "$project_dir/skills/development-loop.md" "Development Loop" || result=1
+    assert_file_not_contains "$project_dir/skills/development-loop.md" "OLD SKILL CONTENT" || result=1
+    assert_file_contains "$project_dir/context.md" "PRESERVE CONTEXT" || result=1
+    assert_file_contains "$project_dir/README.md" "PRESERVE README" || result=1
     
-    # Check that README contains expected content
-    assert_file_contains "$project_dir/README.md" "force-test" || result=1
-    
+    report_result "$test_name" "$result"
+    cleanup "$temp_dir"
+}
+
+# Test: --update only refreshes contract files
+test_update_refreshes_only_contract_files() {
+    local test_name="update_refreshes_only_contract_files"
+    local temp_dir
+    temp_dir=$(create_temp_dir)
+    local project_dir="$temp_dir/update-test"
+
+    echo -e "\n${BLUE}Testing:${NC} $test_name"
+
+    "$BINARY" update-test --profile python --dir "$project_dir" --no-git --author "First Author"
+
+    echo "OLD AGENT CONTENT" > "$project_dir/AGENTS.md"
+    echo "OLD SKILL CONTENT" > "$project_dir/skills/backlog.md"
+    echo "PRESERVE CONTEXT" > "$project_dir/context.md"
+    echo "PRESERVE WHERE" > "$project_dir/WHERE_AM_I.md"
+    echo "PRESERVE README" > "$project_dir/README.md"
+
+    "$BINARY" --update --profile python --dir "$project_dir"
+
+    local result=0
+    assert_file_contains "$project_dir/AGENTS.md" "Agent Guide: update-test" || result=1
+    assert_file_contains "$project_dir/AGENTS.md" "Agent Guide" || result=1
+    assert_file_not_contains "$project_dir/AGENTS.md" "OLD AGENT CONTENT" || result=1
+    assert_file_contains "$project_dir/skills/backlog.md" "Skill: Backlog" || result=1
+    assert_file_not_contains "$project_dir/skills/backlog.md" "OLD SKILL CONTENT" || result=1
+    assert_file_contains "$project_dir/context.md" "PRESERVE CONTEXT" || result=1
+    assert_file_contains "$project_dir/WHERE_AM_I.md" "PRESERVE WHERE" || result=1
+    assert_file_contains "$project_dir/README.md" "PRESERVE README" || result=1
+
+    report_result "$test_name" "$result"
+    cleanup "$temp_dir"
+}
+
+# Test: Existing managed projects backfill missing stateful docs
+test_existing_project_backfills_missing_stateful_docs() {
+    local test_name="existing_project_backfills_missing_stateful_docs"
+    local temp_dir
+    temp_dir=$(create_temp_dir)
+    local project_dir="$temp_dir/backfill-test"
+
+    echo -e "\n${BLUE}Testing:${NC} $test_name"
+
+    "$BINARY" backfill-test --profile python --dir "$project_dir" --no-git --author "First Author"
+
+    rm -f "$project_dir/WHERE_AM_I.md"
+    rm -f "$project_dir/result-review.md"
+
+    "$BINARY" backfill-test --profile python --dir "$project_dir" --no-git
+
+    local result=0
+    assert_file_exists "$project_dir/WHERE_AM_I.md" || result=1
+    assert_file_exists "$project_dir/result-review.md" || result=1
+    assert_file_contains "$project_dir/WHERE_AM_I.md" "WHERE_AM_I" || result=1
+    assert_file_contains "$project_dir/result-review.md" "Result Review" || result=1
+
     report_result "$test_name" "$result"
     cleanup "$temp_dir"
 }
@@ -643,7 +699,9 @@ main() {
     test_dry_run_does_not_create_files
     test_name_substitution_works
     test_author_substitution_works
-    test_force_overwrites_existing
+    test_force_refreshes_only_contract_files
+    test_update_refreshes_only_contract_files
+    test_existing_project_backfills_missing_stateful_docs
     test_skip_existing_skips_files
     test_invalid_profile_rejected
     test_invalid_project_name_rejected

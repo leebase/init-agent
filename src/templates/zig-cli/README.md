@@ -57,7 +57,7 @@ To pull the latest AgentFlow templates into this project without overwriting you
 init-agent --update
 ```
 
-This will automatically detect the Zig CLI profile and refresh files like `AGENTS.md` and `lees-process.md`.
+This will automatically detect the Zig CLI profile and refresh only the contract files: `AGENTS.md` and `skills/*`. Living project-memory files such as `context.md` and `WHERE_AM_I.md` are preserved.
 
 ## License
 

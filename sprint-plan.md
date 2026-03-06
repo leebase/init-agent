@@ -6,9 +6,36 @@
 
 | Attribute | Value |
 |-----------|-------|
-| **Current Sprint** | Sprint 2 — Profile System |
-| **Version Target** | v0.2.0 |
-| **Last Updated** | 2026-02-17 |
+| **Current Sprint** | Sprint 8 — Safe Existing-Project Refresh |
+| **Version Target** | v1.2.0 |
+| **Last Updated** | 2026-03-06 |
+
+---
+
+## Sprint 8 — Safe Existing-Project Refresh ✅ COMPLETE
+
+> v1.2.0 — Preserve project state when re-running init-agent
+
+### Goals
+
+When `init-agent` runs against an existing project, it should refresh only the agent contract layer (`AGENTS.md` and `skills/*`) and preserve living project-memory documents such as `context.md` and `WHERE_AM_I.md`.
+
+### Tasks
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Define refreshable vs preserved files | ✅ | Contract files refreshable; project-memory docs preserved |
+| Change scaffold-on-existing-dir behavior | ✅ | Existing managed projects now refresh only `AGENTS.md` and `skills/*` |
+| Change `--update` behavior | ✅ | `--update` rewrites contract files only |
+| Update overwrite/force semantics | ✅ | `--force` no longer deletes the target directory |
+| Add regression coverage | ✅ | Integration tests cover rerun preservation, missing-doc backfill, and `--update --dir` project-name handling |
+| Update README and generated docs | ✅ | Repo README plus profile templates now document contract-only refresh |
+
+**Acceptance Criteria**
+- Re-running `init-agent` in an existing project never overwrites `context.md`, `WHERE_AM_I.md`, `result-review.md`, or similar stateful docs.
+- `AGENTS.md` and `skills/*` are refreshed on rerun, with overwrite prompts unless `--force` is used.
+- `--update` touches only `AGENTS.md` and `skills/*`.
+- Automated tests cover the preservation rules.
 
 ---
 

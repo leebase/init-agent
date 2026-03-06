@@ -1,79 +1,116 @@
 # init-agent
 
-A Zig tool for scaffolding AI-agent projects using the **AgentFlow** methodology.
+A Zig CLI for scaffolding AI-agent projects around the AgentFlow methodology.
 
-`init-agent` generates project kits that establish shared memory (state) between you and any AI working on your codebase. It provides the structured files, conventions, and skills necessary to keep AI agents oriented, deterministic, and autonomous without drift.
+`init-agent` creates an opinionated project kit that gives you shared memory, operating rules, sprint structure, backlog flow, and profile-specific starter files so a human and an AI agent can keep working across sessions without losing the plot.
 
-## What's New: Skills & Mandatory Code Review
+## What It Generates
 
-The latest `init-agent` introduces two major upgrades to the AgentFlow methodology:
+Every scaffold includes the AgentFlow document system:
 
-### 1. The Skills Architecture
+- `AGENTS.md` as the contract for any AI working in the repo
+- `context.md` as the session handoff note
+- `WHERE_AM_I.md` as the product-level orientation doc
+- `result-review.md` as the running completion log
+- `sprint-plan.md`, `sprint-review.md`, `project-plan.md`, and backlog structure
+- `skills/` for task-specific workflows such as development, testing, documentation, backlog work, and code review
 
-Previously, `AGENTS.md` was bloated with every possible process and workflow instruction, causing context exhaustion and confusion.
+On top of that, `init-agent` adds a profile-specific starter project:
 
-Now, `AGENTS.md` is a slim router. The actual workflows live in `skills/` files, grouped logically:
-- `development-loop.md` — how to write, test, and commit code
-- `test-as-lee.md` — how to verify work before presenting it
-- `documentation.md` — what to update and when
-- `backlog.md` — how to scope and create tasks
-- `code-review.md` — how to perform an objective codebase review
+- `python`: Python package with `pyproject.toml` and `src/` layout
+- `web-app`: React + TypeScript + Vite app
+- `zig-cli`: Zig command-line tool
 
-Agents only load the specific skill they need based on triggers defined in `AGENTS.md`. This drops the cognitive load significantly and makes agents far more effective at complex tasks.
+## The Methodology
 
-### 2. Mandatory Code Review
+The scaffolds are built around **AgentFlow**, your documentation-driven workflow for human-AI collaboration.
 
-Code review is no longer a manual afterthought — it's wired into the sprint lifecycle:
-- The sprint `Definition of Done` explicitly demands running the `skills/code-review.md` protocol.
-- The review outputs structurally to `code-reviews/review-YYYY-MM-DD.md` (a directory now scaffolded by all profiles).
-- The `sprint-review.md` template prompts an external/fresh AI to pull that review file when assessing the sprint's quality.
+If someone wants the full explanation of the methodology itself, point them to:
 
-You cannot close a sprint in an AgentFlow project without an AI pointing out the edge cases you missed.
+- [how-to-work-with-agentic-ai.md](./how-to-work-with-agentic-ai.md)
+
+That doc explains the document system, session lifecycle, autonomy modes, development loop, and why the project uses markdown files as shared memory between humans and AI agents.
 
 ## Installation
 
+`init-agent` is written in Zig `0.13.0`.
+
 ```bash
-# macOS / Linux (from source)
 git clone https://github.com/lee/init-agent.git
 cd init-agent
 make install
 ```
 
+For a user-local install:
+
+```bash
+make install-local
+```
+
 ## Usage
 
 Create a new project:
+
 ```bash
 init-agent my-awesome-app --profile web-app --author "Lee"
 ```
 
-Available profiles:
-- `python`: Python package with `pyproject.toml`
-- `web-app`: React + Vite + TypeScript application
-- `zig-cli`: Zig command-line tool
+List available profiles:
 
-Update an existing project's AgentFlow files without overwriting user data:
+```bash
+init-agent --list
+```
+
+Create a project without initializing git:
+
+```bash
+init-agent my-lib --profile python --no-git
+```
+
+## Updating Existing Projects
+
+You can refresh an existing init-agent project without overwriting its living project memory:
+
 ```bash
 cd my-awesome-app
 init-agent --update --profile web-app
 ```
 
+Current update behavior:
+
+- `AGENTS.md` and `skills/*` are treated as refreshable contract files
+- `context.md`, `WHERE_AM_I.md`, `result-review.md`, and other project-owned files are preserved
+- re-running `init-agent` inside an existing managed project follows the same rule
+- `--force` skips prompts for refreshable files, but does not delete the target directory
+
+This keeps the methodology upgradeable without wiping the state the methodology is supposed to preserve.
+
+## Why This Project Exists
+
+The problem `init-agent` is solving is simple: AI agents are stateless, but projects are not.
+
+Without a stable document system:
+
+- every new session starts from zero
+- each model invents its own workflow
+- important decisions disappear into chat history
+- handoffs between models or people become unreliable
+
+`init-agent` standardizes that starting point so every project begins with a usable collaboration contract instead of ad hoc prompts.
+
 ## Development
 
-`init-agent` is written in Zig 0.13.0.
-
 ```bash
-# Build
 make build
-
-# Test
 make test
-
-# Verify template sync (always run before committing)
 make check-sync
 ```
 
-### The Dual-Template Rule
-This project embeds templates at compile time using `@embedFile`.
-- Human-editable templates live in `templates/` (project root).
-- Compiled templates live in `src/templates/`.
-**When you edit a template, you must update both.** Use `make check-sync` to verify.
+### Dual-Template Rule
+
+This project embeds templates at compile time with `@embedFile`.
+
+- human-editable source templates live in `templates/`
+- compiled templates live in `src/templates/`
+
+If you change a template, update both trees. `make check-sync` verifies they still match.

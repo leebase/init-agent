@@ -11,10 +11,10 @@
 | Attribute | Value |
 |-----------|-------|
 | **Project** | init-agent |
-| **Profile** | Python Package |
-| **Current Phase** | Phase 0 — Bootstrap |
-| **Overall Status** | 🟡 Just scaffolded |
-| **Last Updated** | 2026-02-17 |
+| **Profile** | Zig CLI Tool |
+| **Current Phase** | Phase 2 — Safety, Upgradeability, and Distribution |
+| **Overall Status** | 🟢 Active development |
+| **Last Updated** | 2026-03-06 |
 
 ---
 
@@ -26,17 +26,17 @@
 
 | Criterion | Status | Notes |
 |-----------|--------|-------|
-| Core feature 1 | ⬜ Not started | |
-| Core feature 2 | ⬜ Not started | |
-| Basic documentation | ✅ Done | Scaffolded by init-agent |
+| Scaffold projects with AgentFlow files | ✅ Done | All profiles generate project memory, backlog, and skills structure |
+| Refresh methodology contracts safely | ✅ Done | Existing projects preserve state while refreshing `AGENTS.md` and `skills/*` |
+| Basic documentation | ✅ Done | README, templates, and project docs updated |
 
 ### Current Phase Goals
 
 | Goal | Status | Notes |
 |------|--------|-------|
-| Establish project structure | ✅ Done | |
-| Define product vision | ⬜ Not started | Update `product-definition.md` |
-| First working feature | ⬜ Not started | |
+| Keep existing-project updates safe | ✅ Done | Sprint 8 completed with contract-only refresh rules |
+| Maintain release/build quality | ✅ Done | Build, unit tests, integration tests, and template sync passed |
+| Prepare next improvement sprint | 🟡 In progress | Backlog review and roadmap cleanup still pending |
 
 ---
 
@@ -44,7 +44,7 @@
 
 | Sprint | Focus | Status |
 |--------|-------|--------|
-| Sprint 1 — Foundation | Core setup and first feature | 🟡 Planning |
+| Sprint 8 — Safe Existing-Project Refresh | Preserve project memory during reruns and updates | ✅ Complete |
 
 ---
 
@@ -52,7 +52,8 @@
 
 | Risk/Blocker | Impact | Status |
 |-------------|--------|--------|
-| Product definition not yet written | Can't validate direction | 🟡 Action needed |
+| Historical planning docs are stale | Creates confusion about actual completed work | 🟡 Cleanup needed |
+| Zig 0.13.0 build requirement is not enforced locally | Local builds fail with newer Zig unless the right compiler is used | 🟡 Known issue |
 
 ---
 
@@ -62,7 +63,8 @@ Decisions that affect product direction (for technical decisions, see `architect
 
 | Decision | Rationale | Date |
 |----------|-----------|------|
-| Python Package profile selected | Best fit for project goals | 2026-02-17 |
+| Existing managed projects refresh contract files only | Preserve accumulated project memory while keeping methodology contracts upgradeable | 2026-03-06 |
+| `--force` is non-destructive for managed projects | Prompt bypass should not imply deleting user-owned state | 2026-03-06 |
 
 ---
 
@@ -70,9 +72,9 @@ Decisions that affect product direction (for technical decisions, see `architect
 
 > Pull from `product-definition.md` once written. This section answers: "How do we know we've succeeded?"
 
-- [ ] MVP criteria met
-- [ ] Users can [core use case]
-- [ ] Documentation complete
+- [x] Users can scaffold new AgentFlow projects across supported profiles
+- [x] Users can refresh contract files in existing projects without overwriting project memory
+- [ ] Historical product and sprint docs fully reconciled with delivered work
 
 ---
 
