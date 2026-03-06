@@ -1,188 +1,147 @@
 # Skill: Code Review
 
-> Load this skill before closing a sprint or tagging a release.
-> Also load it when asked to review a specific feature or PR.
+> Load this skill before closing a sprint or tagging a release for init-agent.
 
 ---
 
 ## Review-Only Rules
 
-**You are in analysis mode. Do not modify files. Do not commit. Do not apply patches.**
+**Do not modify files. Do not commit. Do not apply patches.**
 
-Your job is to find problems and describe fixes. Output goes to `code-reviews/review-{{DATE}}.md`.
-If you find something obviously wrong and safe to fix, describe the fix precisely — but do not apply it unless the human explicitly says so.
+Output goes to `code-reviews/review-YYYY-MM-DD.md`. If you find an obvious fix, describe it precisely — file, line, before/after — but do not apply it unless explicitly asked.
 
 ---
 
-## Phase 0: Map the Project First
+## Phase 0: Orient First
 
-Before reviewing anything, build a working mental model. Read:
+Read before reviewing anything:
+1. `architecture.md` — design decisions and known tradeoffs
+2. `product-definition.md` — what this is supposed to do
+3. `sprint-plan.md` — what changed this sprint (scope the review)
 
-1. `AGENTS.md` — constraints and conventions
-2. `architecture.md` — design decisions and known tradeoffs
-3. `product-definition.md` — what this is supposed to do
-4. `sprint-plan.md` — what was built this sprint (scope the review)
-
-Then enumerate:
-- **Entrypoints**: What starts the program? CLI flags? A web server? A worker?
-- **External dependencies**: Files, network, subprocesses, databases, APIs
-- **Trust boundaries**: What input comes from users/external systems vs. internal state?
-- **Security-critical areas**: auth, secrets, file paths from user input, subprocess args from user input
-
-Write a one-paragraph architecture summary at the top of your review file. If you get this wrong, everything else will be wrong too.
+**init-agent's architecture in brief:**
+- Single Zig binary, no runtime dependencies
+- Templates embedded via `@embedFile` at compile time from `src/templates/`
+- `templates/` (root) is the human-editable copy — must match `src/templates/`
+- Profile system: each profile = list of `TemplateFile` entries + directories list
+- `--update` iterates the same file list and overwrites contract files
+- Template variable substitution via `substituteVariables()` with `{{VAR}}` syntax
 
 ---
 
 ## Phase 1: Run the Checks
 
-Run every check the project provides. Do not skip any.
-
 ```bash
-{{BUILD_COMMAND}}     # Must pass — compilation errors are blocking
-{{TEST_COMMAND}}      # All tests must pass before review is meaningful
+# Must pass before the review means anything
+/home/lee/zig/zig build -Doptimize=ReleaseFast
+/home/lee/zig/zig build test
+
+# Smoke test all 3 profiles
+./zig-out/bin/init-agent review-test --profile python --force && \
+./zig-out/bin/init-agent review-test2 --profile web-app --force && \
+./zig-out/bin/init-agent review-test3 --profile zig-cli --force
+ls review-test/skills/ review-test2/skills/ review-test3/skills/
+rm -rf review-test review-test2 review-test3
 ```
 
-If any check fails, **that is Finding #1**. Do not proceed with the review as if the project is healthy — it isn't.
-
-If no checks are configured, propose a minimal standard toolchain for this stack and note it as a finding.
+If any check fails — **that is Finding #1.** Do not continue as if the project is healthy.
 
 ---
 
 ## Phase 2: Review Lenses
 
-Work through each lens. Not every lens applies to every project — skip what's genuinely irrelevant and say why.
+### A. Correctness & Error Handling (highest priority for Zig code)
 
-### A. Correctness & Error Handling
-
-This is the highest-value lens for most projects.
-
-- Does every function that can fail handle its errors explicitly?
-- Are errors surfaced to the user with actionable messages, or swallowed silently?
-- What happens when an external dependency fails (file not found, subprocess exits with error, network timeout)? Is the failure handled, or does it cascade?
-- Are there any `while (true)` loops with no guaranteed exit condition? (These become runaway processes.)
-- Are there resource leaks — open files, allocated memory, subprocess handles — that don't get cleaned up on the error path?
-- Are there race conditions? (Shared mutable state accessed from multiple threads/goroutines/tasks without synchronization.)
-
-**For each issue found:** File + function + line range. Exact failure mode. Specific fix.
+- Does every function that can fail handle errors explicitly? Are any errors swallowed with `_ = result`?
+- `while (true)` loops: is there a guaranteed exit condition under all inputs, including closed/piped stdin?
+- Resource cleanup: are files closed, memory freed on every error path (including early returns)?
+- Template sync: does `src/templates/` match `templates/`? A mismatch compiles but produces stale output.
+- `substituteVariables()`: are there template variables in the skills files that will appear unresolved in generated output?
 
 ### B. Security
 
-Threat-model the entry points. For CLI tools: are any arguments used in subprocess calls, file paths, or template substitution without sanitization? For web servers: injection, SSRF, auth gaps. For file writers: path traversal.
+init-agent's threat surface is limited (local CLI, no network) but not zero:
+- Are any user-provided strings (project name, author, output dir) used in subprocess args without sanitization? (`git init <output_dir>`)
+- Path traversal: can a crafted `--dir` argument write files outside the intended directory?
+- Can `--profile` be crafted to escape the profile registry lookup?
 
-Ask: **what is the worst thing a malicious or mistaken input to this program can do?**
+### C. Edge Cases
 
-Mark findings: `Critical` / `High` / `Med` / `Low`. Be honest about severity — don't inflate.
-
-### C. Edge Cases & Boundary Conditions
-
-- Empty input, zero-length collections, null/nil/empty strings
-- Very large input (what happens at scale?)
-- Operations run twice (idempotency — especially important for file creation, git operations)
-- Partial failure mid-operation — is state left consistent?
+- Empty `--name` or `--author` flags — does the tool behave sensibly or crash?
+- Project name that is a reserved OS path (e.g., `con` on Windows, `.` or `..`)
+- `--force` on an existing non-directory path (file with the same name as the target dir)
+- `--update` run from a directory that has no `context.md` and no profile signature files
 
 ### D. Code Quality
 
-- Are there functions doing more than one thing? (High coupling, hard to test)
-- Is there duplication that would cause a fix in one place to require fixes in two others?
-- Are names clear at the call site, or do you need to read the implementation to understand a call?
-- Is there dead code (unreachable branches, unused variables, commented-out blocks)?
-
-Be honest but proportionate. Not every style issue is worth raising. Focus on things that will cause bugs or make the next engineer's job harder.
+- Are there any functions in `main.zig` doing more than one distinct job? (It's a large file — scope creep is a real risk here)
+- Is the dual template tree sync requirement documented anywhere agents will find it? (It's easy to forget)
+- Are there Zig 0.13.0 API calls that will break when upgrading Zig?
 
 ### E. Tests
 
-- What's tested? What isn't?
-- Are the happy paths covered but edge cases missing?
-- Are there tests that pass but don't actually verify the right thing? (Tests that can't fail are worse than no tests — they provide false confidence.)
-- What's the most likely bug that would be caught by a test that doesn't exist yet?
+- What does the current test suite cover? (replaceAll, substituteVariables, hasUnresolvedPlaceholders — string logic)
+- What's NOT covered: profile registry, scaffold creation, --update behavior, git init, interactive mode, stdin EOF handling
+- What's the highest-value missing test?
 
 ### F. Documentation
 
-- Does `README.md` accurately describe how to build, run, and use the project?
-- Is there anything in `architecture.md` or `AGENTS.md` that's stale or contradicts reality?
-- Are the comments in code explaining *why*, not just *what*?
+- Does `README.md` accurately reflect the current CLI flags and profile list?
+- Are sprint-plan.md statuses current?
+- Are the skill files themselves clear and actionable — or are any of them drifting toward generic filler?
 
 ---
 
 ## Phase 3: Write the Review File
 
-Output to `code-reviews/review-{{DATE}}.md`. Use this structure exactly:
+Output to `code-reviews/review-YYYY-MM-DD.md`:
 
 ```markdown
-# Code Review — {{DATE}}
-
-## Architecture Summary
-[One paragraph. What does this project do, how is it structured, what are the main risk areas?]
+# Code Review — YYYY-MM-DD
 
 ## Checks Run
 | Command | Result |
 |---------|--------|
-| {{BUILD_COMMAND}} | ✅ Pass / ❌ Fail |
-| {{TEST_COMMAND}} | ✅ Pass / ❌ Fail |
+| zig build | ✅ / ❌ |
+| zig build test | ✅ / ❌ |
+| Smoke test (3 profiles) | ✅ / ❌ |
 
 ## Findings
 
 | ID | Severity | Category | Location | Problem | Proposed Fix |
 |----|----------|----------|----------|---------|--------------|
-| R001 | Critical | Correctness | `src/foo.zig:247 handleInput()` | stdin EOF causes infinite loop — process hangs | Change `continue` to `return .skip` on `bytes_read == 0` |
-| R002 | High | Security | `src/main.zig:312 runSubprocess()` | User-provided filename passed directly to subprocess argv without validation | Sanitize or reject filenames containing shell metacharacters |
-| ... | | | | | |
+| R001 | High | Correctness | `src/main.zig:247 writeFile()` | ... | ... |
 
 ## Remediation Roadmap
 
-### Fix Now (Blockers)
-- R001 — [reason it's blocking]
+### Fix Now
+### Fix Soon
+### Fix Later
 
-### Fix Soon (High ROI)
-- R002 — [reason + estimated effort S/M/L]
-
-### Fix Later (Refactors)
-- [lower priority items]
-
-## Patch Suggestions
-
-For safe, obvious fixes: describe the exact change in terms of file + line + old code → new code.
-Do NOT apply patches. Describe them only.
-
-\`\`\`
-// src/foo.zig:595 — BEFORE
-if (bytes_read == 0) continue;
-
-// AFTER
-if (bytes_read == 0) {
-    print("No input, defaulting to skip\n", .{});
-    return .skip;
-}
-\`\`\`
-
-## Test Additions Recommended
-- [ ] Test: [specific scenario that should be covered]
-- [ ] Test: [edge case that could catch a real bug]
+## Patch Suggestions (text only — do not apply)
 ```
 
 ---
 
 ## Severity Guide
 
-| Level | Meaning | Examples |
-|-------|---------|---------|
-| **Critical** | Data loss, security breach, crash in normal use | Infinite loop on EOF, path traversal from user input |
-| **High** | Wrong behavior that will be hit by real users | Error swallowed silently, subprocess arg injection |
-| **Med** | Wrong behavior in edge cases or poor degradation | No timeout on external call, missing idempotency |
-| **Low** | Quality / maintainability issue, no immediate risk | Duplicate code, unclear name, stale comment |
+| Level | Meaning |
+|-------|---------|
+| **Critical** | Crash in normal use, data loss, security breach |
+| **High** | Wrong behavior real users will hit |
+| **Med** | Wrong behavior in edge cases, poor degradation |
+| **Low** | Quality/maintainability, no immediate risk |
 
-**Do not inflate severity.** A Low finding reported as Critical trains the human to ignore everything.
+Do not inflate severity. A Low reported as Critical trains Lee to ignore everything.
 
 ---
 
-## What Makes a Good Review
+## Good vs. Bad Finding
 
-**Good:** "In `src/main.zig:595`, `promptFileAction()` has a `while (true)` loop that calls `stdin.read()`. When stdin is closed (piped input, CI, non-TTY context), `bytes_read` is 0 and the loop `continue`s forever, causing a runaway process. Fix: return `.skip` on `bytes_read == 0`."
+**Good:** "In `src/main.zig:595`, `promptFileAction()` has `while (true)` with `if (bytes_read == 0) continue` — when stdin is piped or closed, this spins forever at 100% CPU. Fix: return `.skip` on EOF."
 
 **Bad:** "Error handling could be improved throughout the codebase."
 
-The first is actionable. The second is noise that wastes everyone's time.
+The first is actionable. The second is noise.
 
----
-
-*Generated by init-agent on {{DATE}}*
+*Last updated: 2026-03-05*

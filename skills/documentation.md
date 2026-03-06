@@ -4,123 +4,100 @@
 
 ---
 
-## Why This Matters
+## Files to Update and When
 
-Documentation is not clerical work. It is the **handoff note** that lets the next session — any LLM, any human — pick up where you left off without confusion. A good session with bad documentation is a net negative: you built something that will be misunderstood or duplicated.
+| File | Update when... | Notes |
+|------|----------------|-------|
+| `context.md` | Every session end | Current state, next actions, decisions locked |
+| `result-review.md` | Something meaningful was built | Full entry at the TOP |
+| `sprint-plan.md` | Tasks complete or status changes | Mark done, update notes |
+| `WHERE_AM_I.md` | Sprint boundary or major pivot | Phase, sprint position |
+| `architecture.md` | A technical decision was made | Decision + rationale + alternatives rejected |
+| `README.md` | CLI interface or flags changed | Usage examples, new flags |
+| `AGENTS.md` | Conventions or guardrails changed | This file |
+| `skills/*.md` | A skill's content is stale | These files |
 
 ---
 
-## What to Update and When
+## Template Sync (init-agent specific)
 
-| File | Update when... | What to write |
-|------|----------------|---------------|
-| `context.md` | Every session end | Current state, next actions queue, decisions locked |
-| `result-review.md` | You completed something meaningful | What was built, why it matters, how to verify it |
-| `sprint-plan.md` | Tasks complete or status changes | Mark tasks done, update notes |
-| `WHERE_AM_I.md` | A milestone is reached or direction shifts | Phase, sprint position, any pivots |
-| `architecture.md` | You made a technical decision | Decision, rationale, alternatives rejected |
-| `README.md` | User-facing behavior changed | Usage examples, new flags, changed behavior |
+If you modified any skill or template, confirm both copies are in sync:
 
-**If in doubt, update.** Over-documentation is recoverable. Under-documentation causes the next agent to re-discover your work the hard way.
+```bash
+diff templates/common/agent.md src/templates/common/agent.md
+diff templates/common/skills/development-loop.md src/templates/common/skills/development-loop.md
+# etc. for any file you touched
+```
+
+If they differ — sync `src/templates/` from `templates/` before committing.
 
 ---
 
 ## How to Write a Good `context.md` Update
 
-A bad `context.md` looks like:
+**Bad:**
 ```
-## What's Happening Now
-Working on the project. Some things done.
+Working on sprint 8 stuff. Some things done.
 ```
 
-A good `context.md` looks like:
+**Good:**
 ```
 ## What's Happening Now
 
 ### Current Focus
-Adding --dry-run support to the scaffold command.
+Added profile-specific skill variables to all 3 profiles.
 
 ### Recently Completed
-- ✅ Implemented flag parsing for --dry-run
-- ✅ Added dry-run output mode to createScaffold()
-- ✅ All tests pass, smoke tested manually
+- ✅ Added {{TEST_COMMAND}} substitution for python profile
+- ✅ All 18 integration tests pass
+- ✅ Smoke tested --profile python, web-app, zig-cli
 
 ### Decisions Locked
 | Decision | Rationale | Date |
 |---|---|---|
-| Dry-run does not create the output dir | Keeps state clean; users can inspect without side effects | {{DATE}} |
+| TEST_COMMAND per profile | Avoids generic placeholder in skills | 2026-03-05 |
 
 ### Next Actions Queue
-1. [TEST] Verify dry-run output matches actual scaffold output
-2. [DOCS] Update README with --dry-run usage example
-3. [COMMIT] Commit once docs are done
+1. [TEST] Run integration.sh on all platforms
+2. [DOCS] Update README with new skill variables
 ```
 
-The test: could an agent with no prior context read this and know exactly what to do next?
+The test: could an agent with zero prior context read this and know exactly what to do next?
 
 ---
 
 ## How to Write a Good `result-review.md` Entry
 
-Add new entries at the **top** of the file. Use this structure:
+Add at the **top**. Structure:
 
 ```markdown
-## [DATE] — [Short description of what was built]
+## YYYY-MM-DD — [Short description]
 
 ### What Was Built
 [1–3 sentences. What exists now that didn't before.]
 
 ### Why It Matters
-[1–2 sentences. What problem does this solve or what does it enable?]
+[What problem this solves or enables.]
 
 ### How to Verify
-[Step-by-step commands or actions to confirm it works. Be specific enough
-that someone who didn't build it can verify it.]
-
 \`\`\`bash
-# Example verification
-{{BUILD_COMMAND}}
-[specific command that demonstrates the feature]
+/home/lee/zig/zig build -Doptimize=ReleaseFast
+./zig-out/bin/init-agent test-proj --profile python --force
+ls test-proj/skills/
+rm -rf test-proj
 \`\`\`
 ```
 
 ---
 
-## How to Write a Good `architecture.md` Entry
-
-Architecture decisions are **irreversible enough to warrant a record**. If you made a choice that someone might later question or undo without understanding the tradeoff, document it:
-
-```markdown
-## [DATE] — [Decision title]
-
-**Decision:** [What you chose]
-
-**Rationale:** [Why this was the right call given the constraints]
-
-**Alternatives rejected:** [What else was considered and why it lost]
-
-**Consequences:** [What this makes easier and what it makes harder]
-```
-
-Don't document trivial decisions. Document ones that would cause confusion if someone found the code six months from now without context.
-
----
-
-## The Commit Is Part of Documentation
-
-A good commit message is documentation:
+## Commit Message Format
 
 ```bash
-git commit -m "feat: add --dry-run flag to scaffold and update commands"
+git add -A -- ':!tmp-init-agent-smoke' ':!dist/*.tar.gz'
+git commit -m "feat: short description of what changed"
 ```
 
-A bad commit message breaks the history:
-```bash
-git commit -m "stuff"
-```
+**Good:** `feat: add code-review skill to all profiles with code-reviews/ scaffold dir`
+**Bad:** `update`, `wip`, `more changes`
 
-The commit log is the first place a new contributor looks. Make it readable.
-
----
-
-*Generated by init-agent on {{DATE}}*
+*Last updated: 2026-03-05*

@@ -1,95 +1,107 @@
 # Skill: Test As Lee
 
-> Load this skill before running validation on any feature you've implemented.
+> Load this skill before presenting any feature to Lee for review.
 
 ---
 
 ## The Goal
 
-When Lee sits down to use this, **he should be focused on whether it does the right thing** — not on debugging crashes, missing error messages, or broken output. Your job is to eliminate every embarrassing failure before he touches it.
-
-If you find yourself thinking "he probably won't try that" — **that's exactly what you should test next.**
+When Lee sits down to run init-agent, **he should be focused on whether it does the right thing** — not on debugging crashes, wrong file paths, or garbled output. Find every embarrassing failure before he touches it.
 
 ---
 
 ## The Protocol
 
-### Step 1: Start the app the way a user would
-
-Use the actual entry point. Not unit tests, not a REPL snippet — the real invocation:
+### Step 1: Build successfully
 
 ```bash
-{{RUN_COMMAND}}
+/home/lee/zig/zig build -Doptimize=ReleaseFast
 ```
 
-If it crashes immediately, start there.
+If this fails, stop. The tool doesn't exist yet.
 
-### Step 2: Run through everything you touched
+### Step 2: Run unit tests
 
-For every feature or file you changed:
-- Exercise the happy path with real, realistic inputs
-- Verify the output looks correct (format, content, no garbage)
-- Verify side effects occurred (files created, state changed, records written)
+```bash
+/home/lee/zig/zig build test
+```
 
-Do not assume something works because it compiled.
+All 17 tests must pass. A single test failure means something is broken.
 
-### Step 3: Test the unhappy paths
+### Step 3: Scaffold a fresh project — all 3 profiles
 
-Think about what a real user might do wrong — then do it:
-- Empty input where something is expected
-- Invalid values (wrong type, out of range, nonsense strings)
-- Missing files or dependencies
-- Running the same operation twice
-- Rapid or concurrent use (if applicable)
+```bash
+./zig-out/bin/init-agent test-python --profile python --force
+./zig-out/bin/init-agent test-webapp --profile web-app --force
+./zig-out/bin/init-agent test-zig --profile zig-cli --force
+```
 
-The app should handle each of these gracefully — either recovering cleanly or producing a clear, human-readable error message. Silent failures and cryptic stack traces are both bugs.
+For each, verify:
+- `AGENTS.md` exists and has the correct project name (not `{{PROJECT_NAME}}`)
+- `skills/` directory exists with all 5 skill files
+- `code-reviews/` directory exists
+- `backlog/candidates/`, `backlog/approved/` etc. exist
+- Profile-specific files exist (`pyproject.toml` for python, `package.json` for web-app, `build.zig` for zig-cli)
+- No `Warning: Unresolved placeholders` for the standard variables (PROJECT_NAME, AUTHOR, DATE, PROFILE are fine to check; the `{{TEST_COMMAND}}` ones in skills are intentional)
 
-### Step 4: Check for runtime errors
+```bash
+ls test-python/skills/
+cat test-python/AGENTS.md | head -5    # Should say "# Agent Guide: test-python"
+ls test-python/code-reviews/
+```
 
-Look at:
-- Console/terminal output — any unexpected warnings, stack traces, or error messages?
-- Log files (if applicable)
-- Return codes — does the process exit with the right code on success and failure?
+### Step 4: Test --dry-run
 
-### Step 5: Verify the UI or output looks right
+```bash
+./zig-out/bin/init-agent dry-test --profile python --dry-run
+```
 
-If the feature produces visible output:
-- Is it readable? Is formatting intact?
-- Does it look professional, not like something went wrong?
-- Is color/styling correct (if applicable)?
-- Would a new user know what to do next from this output?
+Should print `[DRY RUN]` lines for every file without creating any files or directories.
 
-### Step 6: Run the full workflow end-to-end
+### Step 5: Test --update on existing project
 
-Don't just test the function you wrote. Test the **feature it belongs to** from the beginning:
-- If you changed a create command, run the full create → verify → use flow
-- If you changed an update command, run on a fresh project AND an existing project
-- If you changed output formatting, verify it renders correctly in a terminal
+```bash
+# Simulate updating an old project that has no skills/ dir
+mkdir -p old-project && cd old-project && git init && cd ..
+./zig-out/bin/init-agent --update --profile python --dir old-project
+ls old-project/skills/     # Must now exist with all 5 skill files
+```
+
+### Step 6: Test edge cases
+
+```bash
+# Force overwrite
+./zig-out/bin/init-agent test-python --profile python --force
+echo "Exit: $?"    # Must be 0
+
+# Piped stdin (no runaway process)
+echo "" | timeout 5 ./zig-out/bin/init-agent already-exists --profile python
+echo "Exit: $?"    # Must complete within 5 seconds
+
+# Unknown profile
+./zig-out/bin/init-agent bad-test --profile nonexistent
+echo "Exit: $?"    # Should print error and exit cleanly — not crash
+
+# --list
+./zig-out/bin/init-agent --list
+```
+
+### Step 7: Clean up
+
+```bash
+rm -rf test-python test-webapp test-zig dry-test old-project bad-test already-exists
+```
 
 ---
 
 ## The "Would Lee Be Embarrassed" Test
 
-Before you call it done, ask:
+Before calling it done:
+- Does any generated file contain a raw `{{PROJECT_NAME}}` or `{{DATE}}`? (Substitution bug)
+- Does the binary hang on any of the edge case inputs above?
+- Does `--list` show all 3 profiles?
+- Does the success output look clean and professional?
 
-> If Lee ran this live in front of someone, would anything embarrass him?
+If anything fails — go back to CODE. Do not document or commit broken work.
 
-Common culprits:
-- Misspelled words in output
-- A success message that appears even when something failed
-- A file that was supposed to be created but wasn't
-- A helpful feature that crashes on the first edge case someone tries
-
-Find it now. Fix it now.
-
----
-
-## When Testing Reveals a Bug
-
-Go back to step 1 of the development loop: **CODE**. Fix the problem. Do not paper over it with a warning message or a comment. Fix it.
-
-Do not move to DOCUMENT until you can run through this entire protocol without hitting a failure.
-
----
-
-*Generated by init-agent on {{DATE}}*
+*Last updated: 2026-03-05*

@@ -1,6 +1,6 @@
 # Skill: Development Loop
 
-> Load this skill when implementing any feature or fix.
+> Load this skill when implementing any feature or fix for init-agent.
 
 ---
 
@@ -20,75 +20,87 @@ Every piece of work follows this sequence. **Do not skip or reorder steps.**
 
 ---
 
-## How to Write Code Well
+## Template File Rule (Critical for init-agent)
 
-**Start with the interface, not the internals.**
-Before writing a function body, define its signature, inputs, outputs, and error cases. If it's a CLI command, define what it prints. If it's an API endpoint, define the request/response shape. This catches design problems before you're invested.
+This project has **two template trees**. When you edit any template:
 
-**Build the smallest working thing first.**
-Implement one case that compiles and runs. Verify it. Then add the next case. Do not write an entire feature in one pass — you'll discover the wrong assumptions too late.
+1. Edit `templates/common/` or `templates/<profile>/` (human-editable source of truth)
+2. Copy the changed file to the matching path under `src/templates/` (what gets compiled in)
 
-**Name things for clarity, not brevity.**
-Variable names like `result` and `tmp` cause confusion in long debugging sessions. Name for what the thing represents in the domain.
+If you edit only one, the compiled binary will not reflect your changes.
 
-**Handle errors explicitly.**
-Do not ignore or suppress errors. Every failure should either be recovered from with clear logic or surfaced to the user with a clear message. Errors that disappear silently are bugs waiting to bite.
+```bash
+# After editing a template, always sync:
+cp templates/common/agent.md src/templates/common/agent.md
+cp templates/common/skills/foo.md src/templates/common/skills/foo.md
+# etc.
+```
 
 ---
 
-## How to Test Well
+## How to Write Code Well
 
-Run the project's test suite:
+**Start with the interface, not the internals.**
+For init-agent, this means: define the CLI flag, target path, and embedded content before writing the Zig wiring. If you're adding a template, write the template file first, then the `@embedFile` and profile entry.
+
+**Build the smallest working thing first.**
+Add one template to one profile. Verify the build. Verify the scaffold output. Then extend to the other profiles.
+
+**Handle errors explicitly.**
+Zig's error unions require you to handle every failure path. Do not use `catch unreachable` except where genuinely unreachable. Prefer `catch |err| { print(...); return ScaffoldError.IoError; }` with a clear message.
+
+**On Zig 0.13.0 API:**
+- `ArrayList.init(allocator)` — not `.empty`
+- `list.append(item)` — not `list.append(allocator, item)`
+- `list.deinit()` — not `list.deinit(allocator)`
+- `list.toOwnedSlice()` — not `list.toOwnedSlice(allocator)`
+
+---
+
+## How to Test
 
 ```bash
-# Run all tests
-{{TEST_COMMAND}}
+# Compile (must pass — this is failing test #1 if it doesn't)
+/home/lee/zig/zig build -Doptimize=ReleaseFast
 
-# Build to verify compilation
-{{BUILD_COMMAND}}
+# Run unit tests (17 test cases covering replaceAll, substituteVariables, etc.)
+/home/lee/zig/zig build test
+
+# Integration smoke test: generate a real project and inspect it
+./zig-out/bin/init-agent test-project --profile python --force
+ls test-project/skills/
+ls test-project/code-reviews/
+cat test-project/AGENTS.md | head -20
+rm -rf test-project
+
+# Test --update on existing project
+mkdir -p update-test && ./zig-out/bin/init-agent update-test --profile python --force
+./zig-out/bin/init-agent --update --profile python --dir update-test
+ls update-test/skills/
+rm -rf update-test
 ```
-
-A test run that ends in errors means you are not done with step 2. Fix before continuing.
-
-**What tests must pass:**
-- Unit tests for your changed code
-- Integration tests that cover the affected feature
-- The build itself (compilation errors = failing test)
 
 ---
 
 ## What Commit Means
 
-One commit per logical unit of work. Never commit broken code.
-
 ```bash
-git add -A
-git commit -m "type: short description of what changed"
+git add -A -- ':!tmp-init-agent-smoke' ':!dist/*.tar.gz'
+git commit -m "type: short description"
 git push
 ```
 
-**Commit message types:**
-- `feat:` — new feature or behavior
-- `fix:` — bug fix
-- `docs:` — documentation only
-- `refactor:` — restructure without behavior change
-- `test:` — tests only
+**Types:** `feat:` `fix:` `docs:` `refactor:` `test:`
 
-**Good:** `feat: add --dry-run flag to scaffold command`  
-**Bad:** `update stuff`, `wip`, `changes`
+**Good:** `feat: add code-review skill to all profiles`
+**Bad:** `update stuff`
 
 ---
 
 ## When to Stop and Ask
 
-Don't guess when you're stuck. Ask when:
-- A design decision has major consequences you're uncertain about
-- You've hit the same bug three times and the cause isn't clear
-- The feature scope turns out to be significantly larger than expected
-- You'd have to break a guardrail to proceed
+- A design decision would affect the public CLI interface
+- You've hit the same Zig compiler error three times and don't understand it
+- A template change would break backward compatibility for existing projects
 
-State exactly what you're blocked on and what you've tried.
-
----
-
-*Generated by init-agent on {{DATE}}*
+*Last updated: 2026-03-05*
