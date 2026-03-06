@@ -1,7 +1,7 @@
 # init-agent Makefile
 # Cross-platform build support
 
-.PHONY: all build test clean install release help
+.PHONY: all build test clean install release check-sync help
 
 # Default target
 all: build
@@ -17,6 +17,14 @@ debug:
 # Run tests
 test:
 	zig build test
+
+# Check that templates/ and src/templates/ are in sync
+# (human-editable templates/ must match compiled-in src/templates/)
+check-sync:
+	@echo "Checking templates/ vs src/templates/ sync..."
+	@diff -rq --exclude='.DS_Store' templates/ src/templates/ \
+		&& echo "✅ Templates are in sync" \
+		|| (echo "❌ Templates are OUT OF SYNC — copy changed files from templates/ to src/templates/" && exit 1)
 
 # Clean build artifacts
 clean:
@@ -89,7 +97,7 @@ help:
 	@echo "  make release-aarch64-linux   - Build for Linux ARM64"
 	@echo "  make release-x86_64-windows  - Build for Windows"
 	@echo "  make release-all             - Build all targets"
-	@echo "  make package                 - Create release archives"
+	@echo "  make check-sync - Check templates/ vs src/templates/ are in sync"
 	@echo ""
 	@echo "Development:"
 	@echo "  make run         - Build and run test scaffold"

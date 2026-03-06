@@ -51,8 +51,11 @@ const FileAction = enum {
 };
 
 // Global state for batch decisions during scaffolding
-var g_overwrite_all: bool = false;
-var g_skip_all: bool = false;
+/// Runtime batch-overwrite state, scoped per scaffold call (replaces former module-level globals)
+const BatchState = struct {
+    overwrite_all: bool = false,
+    skip_all: bool = false,
+};
 
 // =============================================================================
 // Profile Registry
@@ -343,8 +346,20 @@ fn printProfiles() void {
     print("\n", .{});
 }
 
-fn getCurrentDate() []const u8 {
-    return "2026-02-17";
+fn getCurrentDate(allocator: std.mem.Allocator) []const u8 {
+    const ts = std.time.timestamp();
+    // Convert unix timestamp to calendar date
+    const secs_per_day: i64 = 86400;
+    const days_since_epoch = @divFloor(ts, secs_per_day);
+    // Use Zig std epoch helpers
+    const epoch_day = std.time.epoch.EpochDay{ .day = @intCast(@max(0, days_since_epoch)) };
+    const year_day = epoch_day.calculateYearDay();
+    const month_day = year_day.calculateMonthDay();
+    return std.fmt.allocPrint(allocator, "{d:0>4}-{d:0>2}-{d:0>2}", .{
+        year_day.year,
+        month_day.month.numeric(),
+        month_day.day_index + 1,
+    }) catch "1970-01-01";
 }
 
 fn getDefaultAuthor(allocator: std.mem.Allocator) []const u8 {
@@ -352,6 +367,8 @@ fn getDefaultAuthor(allocator: std.mem.Allocator) []const u8 {
         .allocator = allocator,
         .argv = &.{ "git", "config", "user.name" },
     }) catch return allocator.dupe(u8, "Anonymous") catch "Anonymous";
+    defer allocator.free(result.stdout);
+    defer allocator.free(result.stderr);
 
     if (result.term == .Exited and result.term.Exited == 0) {
         const name = std.mem.trim(u8, result.stdout, " \n\r\t");
@@ -587,7 +604,7 @@ fn writeFile(dir: fs.Dir, relative_path: []const u8, content: []const u8) !void 
 }
 
 /// Prompt user for action when file exists and differs
-fn promptFileAction(file_path: []const u8) FileAction {
+fn promptFileAction(file_path: []const u8, batch: *BatchState) FileAction {
     while (true) {
         print("File exists and differs: {s}\n", .{file_path});
         print("[o]verwrite, [s]kip, [O]verwrite all, [S]kip all, [d]iff, [q]uit? ", .{});
@@ -611,14 +628,14 @@ fn promptFileAction(file_path: []const u8) FileAction {
         switch (input[0]) {
             'o', 'O' => {
                 if (input[0] == 'O') {
-                    g_overwrite_all = true;
+                    batch.overwrite_all = true;
                     return .overwrite_all;
                 }
                 return .overwrite;
             },
             's', 'S' => {
                 if (input[0] == 'S') {
-                    g_skip_all = true;
+                    batch.skip_all = true;
                     return .skip_all;
                 }
                 return .skip;
@@ -637,6 +654,7 @@ fn shouldWriteFile(
     file_path: []const u8,
     new_content: []const u8,
     config: Config,
+    batch: *BatchState,
 ) ScaffoldError!FileAction {
     // If force flag is set, always overwrite
     if (config.force) {
@@ -686,7 +704,7 @@ fn shouldWriteFile(
     }
 
     // Content differs - prompt user
-    return promptFileAction(file_path);
+    return promptFileAction(file_path, batch);
 }
 
 // =============================================================================
@@ -699,9 +717,7 @@ fn createScaffold(config: Config) ScaffoldError!void {
     const profile = getProfile(config.profile_name) orelse return ScaffoldError.InvalidProfile;
     config.logVerbose("Loading profile: {s}\n", .{profile.name});
 
-    // Reset global batch state
-    g_overwrite_all = false;
-    g_skip_all = false;
+    var batch = BatchState{};
 
     const exists = directoryExists(config.output_dir);
 
@@ -719,9 +735,11 @@ fn createScaffold(config: Config) ScaffoldError!void {
     }
 
     // Prepare variables for substitution
+    const date = getCurrentDate(allocator);
+    defer allocator.free(date);
     const vars = VariableMap{
         .project_name = config.display_name,
-        .date = getCurrentDate(),
+        .date = date,
         .author = config.author,
         .profile = profile.display_name,
         .output_dir = config.output_dir,
@@ -804,12 +822,12 @@ fn createScaffold(config: Config) ScaffoldError!void {
             // Check if we should write this file
             var action: FileAction = undefined;
 
-            if (g_overwrite_all) {
+            if (batch.overwrite_all) {
                 action = .overwrite;
-            } else if (g_skip_all) {
+            } else if (batch.skip_all) {
                 action = .skip;
             } else {
-                action = try shouldWriteFile(allocator, project_dir, target_path, content, config);
+                action = try shouldWriteFile(allocator, project_dir, target_path, content, config, &batch);
             }
 
             switch (action) {
@@ -839,11 +857,11 @@ fn createScaffold(config: Config) ScaffoldError!void {
 
                     printDiff(allocator, existing, content, target_path);
 
-                    const new_action = promptFileAction(target_path);
+                    const new_action = promptFileAction(target_path, &batch);
                     switch (new_action) {
                         .overwrite, .overwrite_all => {
                             if (new_action == .overwrite_all) {
-                                g_overwrite_all = true;
+                                batch.overwrite_all = true;
                             }
                             writeFile(project_dir, target_path, content) catch |err| {
                                 print("Error writing file '{s}': {s}\n", .{ target_path, @errorName(err) });
@@ -854,7 +872,7 @@ fn createScaffold(config: Config) ScaffoldError!void {
                         },
                         .skip, .skip_all => {
                             if (new_action == .skip_all) {
-                                g_skip_all = true;
+                                batch.skip_all = true;
                             }
                         },
                         .quit => {
@@ -875,6 +893,11 @@ fn createScaffold(config: Config) ScaffoldError!void {
 
         // Initialize git if requested
         if (config.init_git) {
+            // Guard against leading-dash output_dir being misinterpreted as a git flag
+            if (config.output_dir.len > 0 and config.output_dir[0] == '-') {
+                print("Error: output directory name cannot begin with '-'\n", .{});
+                return ScaffoldError.IoError;
+            }
             const git_result = std.process.Child.run(.{
                 .allocator = allocator,
                 .argv = &.{ "git", "init", config.output_dir },
@@ -960,7 +983,6 @@ fn detectProjectName(allocator: std.mem.Allocator) ![]const u8 {
     return try allocator.dupe(u8, dir_name);
 }
 
-/// Detect profile from existing context.md or fall back to "python"
 /// Detect profile from existing context.md or return null if not found
 fn detectProfile(allocator: std.mem.Allocator) ?[]const u8 {
     const cwd = fs.cwd();
@@ -991,7 +1013,7 @@ fn detectProfileFromFiles() ?[]const u8 {
     return null;
 }
 
-fn updateProjectFiles(allocator: std.mem.Allocator, profile_name_arg: []const u8) !void {
+fn updateProjectFiles(allocator: std.mem.Allocator, profile_name_arg: []const u8, update_dir: []const u8) !void {
     const project_name = try detectProjectName(allocator);
     defer allocator.free(project_name);
 
@@ -1036,19 +1058,27 @@ fn updateProjectFiles(allocator: std.mem.Allocator, profile_name_arg: []const u8
     const author = getDefaultAuthor(allocator);
     defer allocator.free(author);
 
+    const date = getCurrentDate(allocator);
+    defer allocator.free(date);
     const vars = VariableMap{
         .project_name = project_name,
-        .date = getCurrentDate(),
+        .date = date,
         .author = author,
         .profile = profile.display_name,
-        .output_dir = ".",
+        .output_dir = if (update_dir.len > 0) update_dir else ".",
     };
 
     cprint(Color.bold, "\n🔄 Updating project files for: {s}\n", .{project_name});
     cprint(Color.cyan, "   Profile:  {s}\n", .{profile.display_name});
     cprint(Color.cyan, "   Version:  {s}\n\n", .{VERSION});
 
-    const cwd = fs.cwd();
+    const target_dir = if (update_dir.len > 0) blk: {
+        break :blk fs.cwd().openDir(update_dir, .{}) catch |err| {
+            print("Error: Cannot open directory '{s}': {s}\n", .{ update_dir, @errorName(err) });
+            return;
+        };
+    } else fs.cwd();
+    const cwd = target_dir;
     var updated: usize = 0;
     var skipped: usize = 0;
 
@@ -1128,16 +1158,20 @@ pub fn main() !void {
     }
 
     if (mem.eql(u8, first_arg, "--update")) {
-        // Parse optional --profile flag from remaining args
+        // Parse optional --profile and --dir flags from remaining args
         var update_profile_name: []const u8 = "";
+        var update_dir: []const u8 = "";
         var j: usize = 2;
         while (j < args.len) : (j += 1) {
             if (mem.eql(u8, args[j], "--profile") and j + 1 < args.len) {
                 j += 1;
                 update_profile_name = args[j];
+            } else if (mem.eql(u8, args[j], "--dir") and j + 1 < args.len) {
+                j += 1;
+                update_dir = args[j];
             }
         }
-        updateProjectFiles(allocator, update_profile_name) catch |err| {
+        updateProjectFiles(allocator, update_profile_name, update_dir) catch |err| {
             print("Error updating files: {s}\n", .{@errorName(err)});
         };
         return;
@@ -1351,6 +1385,9 @@ pub fn main() !void {
     cprint(Color.cyan, "\nNext steps:\n", .{});
     print("  cd {s}\n", .{config.output_dir});
     print("  [Your AI agent reads AGENTS.md and begins]\n", .{});
+    if (!config.dry_run) {
+        cprint(Color.yellow, "\nNote: skills/ files contain placeholders like {{BUILD_COMMAND}} — fill these in for your stack.\n", .{});
+    }
 }
 
 // =============================================================================
@@ -1480,4 +1517,76 @@ test "contentEqual compares content correctly" {
     try std.testing.expect(contentEqual("", ""));
     try std.testing.expect(!contentEqual("a", ""));
     try std.testing.expect(!contentEqual("", "a"));
+}
+
+test "getCurrentDate returns plausible YYYY-MM-DD format" {
+    const allocator = std.testing.allocator;
+    const date = getCurrentDate(allocator);
+    defer allocator.free(date);
+    try std.testing.expect(date.len >= 10);
+    try std.testing.expectEqual('-', date[4]);
+    try std.testing.expectEqual('-', date[7]);
+    try std.testing.expectEqualStrings("20", date[0..2]);
+}
+
+test "getProfile returns null for unknown profile" {
+    try std.testing.expect(getProfile("nonexistent") == null);
+    try std.testing.expect(getProfile("") == null);
+    try std.testing.expect(getProfile("PYTHON") == null);
+}
+
+test "getProfile all profiles have 5 or more skills" {
+    const profiles = [_][]const u8{ "python", "web-app", "zig-cli" };
+    for (profiles) |name| {
+        const profile = getProfile(name).?;
+        var skill_count: usize = 0;
+        for (profile.files) |f| {
+            if (std.mem.startsWith(u8, f.target_path, "skills/")) {
+                skill_count += 1;
+            }
+        }
+        try std.testing.expect(skill_count >= 5);
+    }
+}
+
+test "getProfile all profiles include code-reviews directory" {
+    const profiles = [_][]const u8{ "python", "web-app", "zig-cli" };
+    for (profiles) |name| {
+        const profile = getProfile(name).?;
+        var found = false;
+        for (profile.directories) |dir| {
+            if (std.mem.eql(u8, dir, "code-reviews")) {
+                found = true;
+                break;
+            }
+        }
+        try std.testing.expect(found);
+    }
+}
+
+test "substituteVariables replaces all five standard variables" {
+    const allocator = std.testing.allocator;
+    const template = "{{PROJECT_NAME}} {{AUTHOR}} {{DATE}} {{PROFILE}} {{OUTPUT_DIR}}";
+    const vars = VariableMap{
+        .project_name = "MyProj",
+        .author = "Lee",
+        .date = "2026-03-05",
+        .profile = "python",
+        .output_dir = "./out",
+    };
+    const result = try substituteVariables(allocator, template, vars);
+    defer allocator.free(result);
+    try std.testing.expectEqualStrings("MyProj Lee 2026-03-05 python ./out", result);
+    try std.testing.expect(!hasUnresolvedPlaceholders(result));
+}
+
+test "collectUnresolvedPlaceholders finds intentional skill placeholders" {
+    const allocator = std.testing.allocator;
+    const content = "Build: {{BUILD_COMMAND}}\nTest: {{TEST_COMMAND}}";
+    const phs = try collectUnresolvedPlaceholders(allocator, content);
+    defer {
+        for (phs) |p| allocator.free(p);
+        allocator.free(phs);
+    }
+    try std.testing.expectEqual(@as(usize, 2), phs.len);
 }
