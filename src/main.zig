@@ -97,6 +97,7 @@ const SKILL_DEVELOPMENT_LOOP_MD = @embedFile("templates/common/skills/developmen
 const SKILL_TEST_AS_LEE_MD = @embedFile("templates/common/skills/test-as-lee.md");
 const SKILL_DOCUMENTATION_MD = @embedFile("templates/common/skills/documentation.md");
 const SKILL_BACKLOG_MD = @embedFile("templates/common/skills/backlog.md");
+const SKILL_CODE_REVIEW_MD = @embedFile("templates/common/skills/code-review.md");
 
 // =============================================================================
 // Embedded Templates - Python Profile
@@ -150,6 +151,7 @@ const PYTHON_PROFILE = Profile{
         .{ .target_path = "skills/test-as-lee.md", .content = SKILL_TEST_AS_LEE_MD },
         .{ .target_path = "skills/documentation.md", .content = SKILL_DOCUMENTATION_MD },
         .{ .target_path = "skills/backlog.md", .content = SKILL_BACKLOG_MD },
+        .{ .target_path = "skills/code-review.md", .content = SKILL_CODE_REVIEW_MD },
         .{ .target_path = "README.md", .content = PYTHON_README_MD },
         .{ .target_path = "pyproject.toml", .content = PYTHON_PYPROJECT_TOML },
         .{ .target_path = "src/{{PROJECT_NAME}}/__init__.py", .content = PYTHON_SRC_INIT_PY },
@@ -159,6 +161,7 @@ const PYTHON_PROFILE = Profile{
         "src/{{PROJECT_NAME}}",
         "tests",
         "skills",
+        "code-reviews",
         "backlog/candidates",
         "backlog/approved",
         "backlog/parked",
@@ -185,6 +188,7 @@ const WEBAPP_PROFILE = Profile{
         .{ .target_path = "skills/test-as-lee.md", .content = SKILL_TEST_AS_LEE_MD },
         .{ .target_path = "skills/documentation.md", .content = SKILL_DOCUMENTATION_MD },
         .{ .target_path = "skills/backlog.md", .content = SKILL_BACKLOG_MD },
+        .{ .target_path = "skills/code-review.md", .content = SKILL_CODE_REVIEW_MD },
         .{ .target_path = "README.md", .content = WEBAPP_README_MD },
         .{ .target_path = "package.json", .content = WEBAPP_PACKAGE_JSON },
         .{ .target_path = "tsconfig.json", .content = WEBAPP_TSCONFIG_JSON },
@@ -197,6 +201,7 @@ const WEBAPP_PROFILE = Profile{
         "src",
         "public",
         "skills",
+        "code-reviews",
         "backlog/candidates",
         "backlog/approved",
         "backlog/parked",
@@ -223,6 +228,7 @@ const ZIGCLI_PROFILE = Profile{
         .{ .target_path = "skills/test-as-lee.md", .content = SKILL_TEST_AS_LEE_MD },
         .{ .target_path = "skills/documentation.md", .content = SKILL_DOCUMENTATION_MD },
         .{ .target_path = "skills/backlog.md", .content = SKILL_BACKLOG_MD },
+        .{ .target_path = "skills/code-review.md", .content = SKILL_CODE_REVIEW_MD },
         .{ .target_path = "README.md", .content = ZIGCLI_README_MD },
         .{ .target_path = "build.zig", .content = ZIGCLI_BUILD_ZIG },
         .{ .target_path = "src/main.zig", .content = ZIGCLI_SRC_MAIN_ZIG },
@@ -230,6 +236,7 @@ const ZIGCLI_PROFILE = Profile{
     .directories = &[_][]const u8{
         "src",
         "skills",
+        "code-reviews",
         "backlog/candidates",
         "backlog/approved",
         "backlog/parked",

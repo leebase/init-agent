@@ -36,6 +36,7 @@ Load the relevant skill file when the trigger applies. Do not try to remember â€
 | You are about to test your work | `skills/test-as-lee.md` |
 | You are about to commit | `skills/documentation.md` |
 | You are creating a backlog item | `skills/backlog.md` |
+| You are closing a sprint or preparing a release | `skills/code-review.md` |
 
 Skills are short, focused, and task-specific. They contain the judgment, not just the steps.
 
