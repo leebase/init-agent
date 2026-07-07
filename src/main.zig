@@ -91,6 +91,7 @@ const COMMON_BACKLOG_SCHEMA_MD = @embedFile("templates/common/backlog-schema.md"
 const COMMON_BACKLOG_TEMPLATE_MD = @embedFile("templates/common/backlog-template.md");
 const COMMON_LEES_PROCESS_MD = @embedFile("templates/common/lees-process.md");
 const COMMON_SPRINT_REVIEW_MD = @embedFile("templates/common/sprint-review.md");
+const COMMON_CASE_STUDIES_MD = @embedFile("templates/common/docs/case-studies.md");
 
 // =============================================================================
 // Embedded Templates - Skills
@@ -101,6 +102,8 @@ const SKILL_TEST_AS_LEE_MD = @embedFile("templates/common/skills/test-as-lee.md"
 const SKILL_DOCUMENTATION_MD = @embedFile("templates/common/skills/documentation.md");
 const SKILL_BACKLOG_MD = @embedFile("templates/common/skills/backlog.md");
 const SKILL_CODE_REVIEW_MD = @embedFile("templates/common/skills/code-review.md");
+const SKILL_DELEGATION_MD = @embedFile("templates/common/skills/delegation.md");
+const SKILL_USE_ORCHESTRATION_MD = @embedFile("templates/common/skills/use-orchestration.md");
 
 // =============================================================================
 // Embedded Templates - Python Profile
@@ -132,6 +135,44 @@ const ZIGCLI_BUILD_ZIG = @embedFile("templates/zig-cli/build.zig");
 const ZIGCLI_SRC_MAIN_ZIG = @embedFile("templates/zig-cli/src/main.zig");
 
 // =============================================================================
+// Embedded Templates - Tutorial Writer Profile (Skills)
+// =============================================================================
+
+const TW_SKILL_TUTORIAL_WRITER_MD = @embedFile("templates/tutorial-writer/skills/tutorial-writer.md");
+const TW_SKILL_GROUNDING_MD = @embedFile("templates/tutorial-writer/skills/grounding.md");
+const TW_SKILL_INTERPRETATION_MD = @embedFile("templates/tutorial-writer/skills/tutorial-interpretation.md");
+const TW_SKILL_DEFINITION_OF_DONE_MD = @embedFile("templates/tutorial-writer/skills/definition-of-done.md");
+const TW_SKILL_PLANNING_MD = @embedFile("templates/tutorial-writer/skills/tutorial-planning.md");
+const TW_SKILL_STEP_SELECTION_MD = @embedFile("templates/tutorial-writer/skills/tutorial-step-selection.md");
+const TW_SKILL_NARRATIVE_MD = @embedFile("templates/tutorial-writer/skills/tutorial-narrative.md");
+const TW_SKILL_EVIDENCE_MAPPING_MD = @embedFile("templates/tutorial-writer/skills/evidence-mapping.md");
+const TW_SKILL_FRAME_SELECTION_MD = @embedFile("templates/tutorial-writer/skills/frame-selection.md");
+const TW_SKILL_WRITING_MD = @embedFile("templates/tutorial-writer/skills/tutorial-writing.md");
+const TW_SKILL_HYGIENE_MD = @embedFile("templates/tutorial-writer/skills/public-artifact-hygiene.md");
+const TW_SKILL_NAVIGATION_MD = @embedFile("templates/tutorial-writer/skills/tutorial-navigation.md");
+const TW_SKILL_VALIDATION_MD = @embedFile("templates/tutorial-writer/skills/tutorial-validation.md");
+const TW_SKILL_TECHNICAL_REVIEW_MD = @embedFile("templates/tutorial-writer/skills/technical-review.md");
+const TW_SKILL_QUALITY_REVIEW_MD = @embedFile("templates/tutorial-writer/skills/tutorial-quality-review.md");
+const TW_SKILL_GROUNDING_ATTACK_MD = @embedFile("templates/tutorial-writer/skills/source-grounding-attack.md");
+const TW_SKILL_CONFUSION_ATTACK_MD = @embedFile("templates/tutorial-writer/skills/learner-confusion-attack.md");
+const TW_SKILL_REVIEW_RESPONSE_MD = @embedFile("templates/tutorial-writer/skills/review-response.md");
+
+// =============================================================================
+// Embedded Templates - Tutorial Writer Profile (Agents)
+// =============================================================================
+
+const TW_AGENT_SOURCE_INTERPRETER_MD = @embedFile("templates/tutorial-writer/agents/source-interpreter.md");
+const TW_AGENT_EDUCATOR_MD = @embedFile("templates/tutorial-writer/agents/educator.md");
+const TW_AGENT_PLANNER_MD = @embedFile("templates/tutorial-writer/agents/tutorial-planner.md");
+const TW_AGENT_EVIDENCE_MAPPER_MD = @embedFile("templates/tutorial-writer/agents/evidence-mapper.md");
+const TW_AGENT_VISUAL_EDITOR_MD = @embedFile("templates/tutorial-writer/agents/visual-editor.md");
+const TW_AGENT_SCRIPT_WRITER_MD = @embedFile("templates/tutorial-writer/agents/script-writer.md");
+const TW_AGENT_VALIDATOR_MD = @embedFile("templates/tutorial-writer/agents/validator.md");
+const TW_AGENT_TECHNICAL_REVIEWER_MD = @embedFile("templates/tutorial-writer/agents/technical-reviewer.md");
+const TW_AGENT_ADVERSARIAL_REVIEWER_MD = @embedFile("templates/tutorial-writer/agents/adversarial-reviewer.md");
+const TW_AGENT_REVIEW_RESPONDER_MD = @embedFile("templates/tutorial-writer/agents/review-responder.md");
+
+// =============================================================================
 // Profile Definitions
 // =============================================================================
 
@@ -148,6 +189,7 @@ const PYTHON_PROFILE = Profile{
         .{ .target_path = "project-plan.md", .content = COMMON_PROJECT_PLAN_MD },
         .{ .target_path = "lees-process.md", .content = COMMON_LEES_PROCESS_MD },
         .{ .target_path = "sprint-review.md", .content = COMMON_SPRINT_REVIEW_MD },
+        .{ .target_path = "docs/case-studies.md", .content = COMMON_CASE_STUDIES_MD },
         .{ .target_path = "backlog/schema.md", .content = COMMON_BACKLOG_SCHEMA_MD },
         .{ .target_path = "backlog/template.md", .content = COMMON_BACKLOG_TEMPLATE_MD },
         .{ .target_path = "skills/development-loop.md", .content = SKILL_DEVELOPMENT_LOOP_MD },
@@ -155,6 +197,8 @@ const PYTHON_PROFILE = Profile{
         .{ .target_path = "skills/documentation.md", .content = SKILL_DOCUMENTATION_MD },
         .{ .target_path = "skills/backlog.md", .content = SKILL_BACKLOG_MD },
         .{ .target_path = "skills/code-review.md", .content = SKILL_CODE_REVIEW_MD },
+        .{ .target_path = "skills/delegation.md", .content = SKILL_DELEGATION_MD },
+        .{ .target_path = "skills/use-orchestration.md", .content = SKILL_USE_ORCHESTRATION_MD },
         .{ .target_path = "README.md", .content = PYTHON_README_MD },
         .{ .target_path = "pyproject.toml", .content = PYTHON_PYPROJECT_TOML },
         .{ .target_path = "src/{{PROJECT_NAME}}/__init__.py", .content = PYTHON_SRC_INIT_PY },
@@ -164,6 +208,7 @@ const PYTHON_PROFILE = Profile{
         "src/{{PROJECT_NAME}}",
         "tests",
         "skills",
+        "docs",
         "code-reviews",
         "backlog/candidates",
         "backlog/approved",
@@ -185,6 +230,7 @@ const WEBAPP_PROFILE = Profile{
         .{ .target_path = "project-plan.md", .content = COMMON_PROJECT_PLAN_MD },
         .{ .target_path = "lees-process.md", .content = COMMON_LEES_PROCESS_MD },
         .{ .target_path = "sprint-review.md", .content = COMMON_SPRINT_REVIEW_MD },
+        .{ .target_path = "docs/case-studies.md", .content = COMMON_CASE_STUDIES_MD },
         .{ .target_path = "backlog/schema.md", .content = COMMON_BACKLOG_SCHEMA_MD },
         .{ .target_path = "backlog/template.md", .content = COMMON_BACKLOG_TEMPLATE_MD },
         .{ .target_path = "skills/development-loop.md", .content = SKILL_DEVELOPMENT_LOOP_MD },
@@ -192,6 +238,8 @@ const WEBAPP_PROFILE = Profile{
         .{ .target_path = "skills/documentation.md", .content = SKILL_DOCUMENTATION_MD },
         .{ .target_path = "skills/backlog.md", .content = SKILL_BACKLOG_MD },
         .{ .target_path = "skills/code-review.md", .content = SKILL_CODE_REVIEW_MD },
+        .{ .target_path = "skills/delegation.md", .content = SKILL_DELEGATION_MD },
+        .{ .target_path = "skills/use-orchestration.md", .content = SKILL_USE_ORCHESTRATION_MD },
         .{ .target_path = "README.md", .content = WEBAPP_README_MD },
         .{ .target_path = "package.json", .content = WEBAPP_PACKAGE_JSON },
         .{ .target_path = "tsconfig.json", .content = WEBAPP_TSCONFIG_JSON },
@@ -204,6 +252,7 @@ const WEBAPP_PROFILE = Profile{
         "src",
         "public",
         "skills",
+        "docs",
         "code-reviews",
         "backlog/candidates",
         "backlog/approved",
@@ -225,6 +274,7 @@ const ZIGCLI_PROFILE = Profile{
         .{ .target_path = "project-plan.md", .content = COMMON_PROJECT_PLAN_MD },
         .{ .target_path = "lees-process.md", .content = COMMON_LEES_PROCESS_MD },
         .{ .target_path = "sprint-review.md", .content = COMMON_SPRINT_REVIEW_MD },
+        .{ .target_path = "docs/case-studies.md", .content = COMMON_CASE_STUDIES_MD },
         .{ .target_path = "backlog/schema.md", .content = COMMON_BACKLOG_SCHEMA_MD },
         .{ .target_path = "backlog/template.md", .content = COMMON_BACKLOG_TEMPLATE_MD },
         .{ .target_path = "skills/development-loop.md", .content = SKILL_DEVELOPMENT_LOOP_MD },
@@ -232,6 +282,8 @@ const ZIGCLI_PROFILE = Profile{
         .{ .target_path = "skills/documentation.md", .content = SKILL_DOCUMENTATION_MD },
         .{ .target_path = "skills/backlog.md", .content = SKILL_BACKLOG_MD },
         .{ .target_path = "skills/code-review.md", .content = SKILL_CODE_REVIEW_MD },
+        .{ .target_path = "skills/delegation.md", .content = SKILL_DELEGATION_MD },
+        .{ .target_path = "skills/use-orchestration.md", .content = SKILL_USE_ORCHESTRATION_MD },
         .{ .target_path = "README.md", .content = ZIGCLI_README_MD },
         .{ .target_path = "build.zig", .content = ZIGCLI_BUILD_ZIG },
         .{ .target_path = "src/main.zig", .content = ZIGCLI_SRC_MAIN_ZIG },
@@ -239,11 +291,79 @@ const ZIGCLI_PROFILE = Profile{
     .directories = &[_][]const u8{
         "src",
         "skills",
+        "docs",
         "code-reviews",
         "backlog/candidates",
         "backlog/approved",
         "backlog/parked",
         "backlog/implemented",
+    },
+};
+
+const TUTORIAL_WRITER_PROFILE = Profile{
+    .name = "tutorial-writer",
+    .display_name = "Tutorial Writer",
+    .description = "Multi-agent tutorial writing pipeline (interpret, plan, write, review)",
+    .files = &[_]TemplateFile{
+        .{ .target_path = "AGENTS.md", .content = COMMON_AGENT_MD },
+        .{ .target_path = "WHERE_AM_I.md", .content = COMMON_WHERE_AM_I_MD },
+        .{ .target_path = "feedback.md", .content = COMMON_FEEDBACK_MD },
+        .{ .target_path = "context.md", .content = COMMON_CONTEXT_MD },
+        .{ .target_path = "result-review.md", .content = COMMON_RESULT_REVIEW_MD },
+        .{ .target_path = "project-plan.md", .content = COMMON_PROJECT_PLAN_MD },
+        .{ .target_path = "lees-process.md", .content = COMMON_LEES_PROCESS_MD },
+        .{ .target_path = "sprint-review.md", .content = COMMON_SPRINT_REVIEW_MD },
+        .{ .target_path = "docs/case-studies.md", .content = COMMON_CASE_STUDIES_MD },
+        .{ .target_path = "backlog/schema.md", .content = COMMON_BACKLOG_SCHEMA_MD },
+        .{ .target_path = "backlog/template.md", .content = COMMON_BACKLOG_TEMPLATE_MD },
+        .{ .target_path = "skills/development-loop.md", .content = SKILL_DEVELOPMENT_LOOP_MD },
+        .{ .target_path = "skills/test-as-lee.md", .content = SKILL_TEST_AS_LEE_MD },
+        .{ .target_path = "skills/documentation.md", .content = SKILL_DOCUMENTATION_MD },
+        .{ .target_path = "skills/backlog.md", .content = SKILL_BACKLOG_MD },
+        .{ .target_path = "skills/code-review.md", .content = SKILL_CODE_REVIEW_MD },
+        .{ .target_path = "skills/delegation.md", .content = SKILL_DELEGATION_MD },
+        .{ .target_path = "skills/use-orchestration.md", .content = SKILL_USE_ORCHESTRATION_MD },
+        // Tutorial writer coordinator + sub-skills
+        .{ .target_path = "skills/tutorial-writer.md", .content = TW_SKILL_TUTORIAL_WRITER_MD },
+        .{ .target_path = "skills/grounding.md", .content = TW_SKILL_GROUNDING_MD },
+        .{ .target_path = "skills/tutorial-interpretation.md", .content = TW_SKILL_INTERPRETATION_MD },
+        .{ .target_path = "skills/definition-of-done.md", .content = TW_SKILL_DEFINITION_OF_DONE_MD },
+        .{ .target_path = "skills/tutorial-planning.md", .content = TW_SKILL_PLANNING_MD },
+        .{ .target_path = "skills/tutorial-step-selection.md", .content = TW_SKILL_STEP_SELECTION_MD },
+        .{ .target_path = "skills/tutorial-narrative.md", .content = TW_SKILL_NARRATIVE_MD },
+        .{ .target_path = "skills/evidence-mapping.md", .content = TW_SKILL_EVIDENCE_MAPPING_MD },
+        .{ .target_path = "skills/frame-selection.md", .content = TW_SKILL_FRAME_SELECTION_MD },
+        .{ .target_path = "skills/tutorial-writing.md", .content = TW_SKILL_WRITING_MD },
+        .{ .target_path = "skills/public-artifact-hygiene.md", .content = TW_SKILL_HYGIENE_MD },
+        .{ .target_path = "skills/tutorial-navigation.md", .content = TW_SKILL_NAVIGATION_MD },
+        .{ .target_path = "skills/tutorial-validation.md", .content = TW_SKILL_VALIDATION_MD },
+        .{ .target_path = "skills/technical-review.md", .content = TW_SKILL_TECHNICAL_REVIEW_MD },
+        .{ .target_path = "skills/tutorial-quality-review.md", .content = TW_SKILL_QUALITY_REVIEW_MD },
+        .{ .target_path = "skills/source-grounding-attack.md", .content = TW_SKILL_GROUNDING_ATTACK_MD },
+        .{ .target_path = "skills/learner-confusion-attack.md", .content = TW_SKILL_CONFUSION_ATTACK_MD },
+        .{ .target_path = "skills/review-response.md", .content = TW_SKILL_REVIEW_RESPONSE_MD },
+        // Tutorial writer agent role definitions
+        .{ .target_path = "agents/source-interpreter.md", .content = TW_AGENT_SOURCE_INTERPRETER_MD },
+        .{ .target_path = "agents/educator.md", .content = TW_AGENT_EDUCATOR_MD },
+        .{ .target_path = "agents/tutorial-planner.md", .content = TW_AGENT_PLANNER_MD },
+        .{ .target_path = "agents/evidence-mapper.md", .content = TW_AGENT_EVIDENCE_MAPPER_MD },
+        .{ .target_path = "agents/visual-editor.md", .content = TW_AGENT_VISUAL_EDITOR_MD },
+        .{ .target_path = "agents/script-writer.md", .content = TW_AGENT_SCRIPT_WRITER_MD },
+        .{ .target_path = "agents/validator.md", .content = TW_AGENT_VALIDATOR_MD },
+        .{ .target_path = "agents/technical-reviewer.md", .content = TW_AGENT_TECHNICAL_REVIEWER_MD },
+        .{ .target_path = "agents/adversarial-reviewer.md", .content = TW_AGENT_ADVERSARIAL_REVIEWER_MD },
+        .{ .target_path = "agents/review-responder.md", .content = TW_AGENT_REVIEW_RESPONDER_MD },
+    },
+    .directories = &[_][]const u8{
+        "skills",
+        "agents",
+        "docs",
+        "code-reviews",
+        "backlog/candidates",
+        "backlog/approved",
+        "backlog/parked",
+        "backlog/implemented",
+        "tutorials",
     },
 };
 
@@ -254,6 +374,8 @@ fn getProfile(name: []const u8) ?Profile {
         return WEBAPP_PROFILE;
     } else if (mem.eql(u8, name, "zig-cli")) {
         return ZIGCLI_PROFILE;
+    } else if (mem.eql(u8, name, "tutorial-writer")) {
+        return TUTORIAL_WRITER_PROFILE;
     }
     return null;
 }
@@ -340,7 +462,7 @@ fn printVersion() void {
 
 fn printProfiles() void {
     print("Available profiles:\n\n", .{});
-    const profiles = &[_]Profile{ PYTHON_PROFILE, WEBAPP_PROFILE, ZIGCLI_PROFILE };
+    const profiles = &[_]Profile{ PYTHON_PROFILE, WEBAPP_PROFILE, ZIGCLI_PROFILE, TUTORIAL_WRITER_PROFILE };
     for (profiles) |profile| {
         print("  {s:12} - {s}\n", .{ profile.name, profile.description });
     }

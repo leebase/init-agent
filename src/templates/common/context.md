@@ -37,7 +37,7 @@ Setting up the project structure and initial implementation.
 
 | Decision | Rationale | Date |
 |----------|-----------|------|
-| TinyClaw methodology | Build from scratch with small primitives; validate before scale | {{DATE}} |
+| Incremental delivery methodology | Build from scratch with small primitives; validate before scale | {{DATE}} |
 
 ---
 

@@ -80,6 +80,17 @@ ls update-test/skills/
 rm -rf update-test
 ```
 
+### Subprocess and Tool Boundaries
+
+If your change touches code that invokes another process — a CLI, model
+harness, build tool, deployment command, external validator, or orchestrator —
+add at least one check that crosses the real boundary. A mock-only test can
+prove internal branching, but it cannot prove the assembled workflow works.
+
+Prefer a real subprocess invocation or smoke command with fixture inputs and
+assertions against files, exit codes, or generated output. Do not let
+`subprocess.run` or process-spawn mocks be the only proof at a boundary.
+
 ---
 
 ## What Commit Means

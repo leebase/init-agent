@@ -45,7 +45,7 @@ why_now: >                          # Tie to current phase/mission
   Why this matters now. Connect to current phase or blockers.
 
 # REQUIRED: Implementation (what to build)
-minimal_impl: >                     # Smallest version that works (TinyClaw)
+minimal_impl: >                     # Smallest version that works
   Describe the smallest implementation that actually works.
 
 definition_of_done:                 # Concrete, measurable outcomes
@@ -131,7 +131,7 @@ Additional context, discussion, research notes, etc.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `minimal_impl` | text | ✅ | TinyClaw interpretation |
+| `minimal_impl` | text | ✅ | Minimal working interpretation |
 | `definition_of_done` | list | ✅ | Checklist of measurable outcomes |
 
 ### Planning Fields

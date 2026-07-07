@@ -6,6 +6,64 @@
 
 ---
 
+## 2026-07-07 — Agent-Orch and Auto-Orch doctrine ported into generated docs
+
+### What Was Built
+
+`init-agent` now generates the evolved AgentFlow contract from
+`agent-orch`: startup includes `WHERE_AM_I.md`, `AGENTS.md` explains
+harness-portable markdown conventions, and the guardrails include the
+Auto-Orch subprocess seam rule. Generated projects also get
+`skills/delegation.md`, `skills/use-orchestration.md`, and
+`docs/case-studies.md` seeded with the Auto-Orch assembly-failure lesson.
+
+The root project docs were updated to match, and `src/main.zig` now embeds the
+new common docs/skills for every current profile. `zig-out/bin/init-agent` was
+recompiled after the template updates.
+
+### Why It Matters
+
+New projects inherit the operating lessons from the most mature AgentFlow repo
+instead of the older March contract. The big safety improvement is explicit:
+subprocess seams must be proven with real command-boundary evidence, because
+mock-only slice tests can hide broken assemblies.
+
+### How to Verify
+
+```bash
+# Homebrew Zig 0.15.2 is too new for this repo's build.zig.
+# Official Zig 0.13.0 cannot currently link its build runner on this host, so
+# verification used the direct compile/test path:
+printf 'pub const version: []const u8 = "dev";\n' > /tmp/init-agent-build/build_options.zig
+SDKROOT="$(xcrun --show-sdk-path)" /tmp/zig-macos-aarch64-0.13.0/zig build-exe \
+  -O ReleaseFast \
+  -target aarch64-macos.14.0.0 \
+  -femit-bin=zig-out/bin/init-agent \
+  --dep build_options \
+  -Mroot=src/main.zig \
+  -Mbuild_options=/tmp/init-agent-build/build_options.zig \
+  -lc
+
+SDKROOT="$(xcrun --show-sdk-path)" /tmp/zig-macos-aarch64-0.13.0/zig test \
+  -O ReleaseFast \
+  -target aarch64-macos.14.0.0 \
+  --dep build_options \
+  -Mroot=src/main.zig \
+  -Mbuild_options=/tmp/init-agent-build/build_options.zig \
+  -lc
+
+SMOKE=$(mktemp -d -t init-agent-doc-smoke-XXXXXX)
+./zig-out/bin/init-agent doc-smoke --profile python --dir "$SMOKE/doc-smoke" --no-git --force
+test -f "$SMOKE/doc-smoke/skills/delegation.md"
+test -f "$SMOKE/doc-smoke/skills/use-orchestration.md"
+test -f "$SMOKE/doc-smoke/docs/case-studies.md"
+rg "Subprocess Seam Rule" "$SMOKE/doc-smoke/AGENTS.md"
+rm -rf "$SMOKE"
+```
+
+Final cleanup removed old `*.sync-conflict-*` files and stale generated
+artifacts; `make check-sync` now passes.
+
 ## 2026-03-06 — Existing-project refresh now preserves project memory
 
 ### What Was Built

@@ -10,7 +10,7 @@
 
 **{{PROJECT_NAME}}** is [describe the project in one sentence].
 
-The philosophy is **TinyClaw**:
+The philosophy is **Incremental Delivery**:
 
 > Build the smallest useful primitives first. Validate before scaling.
 
@@ -122,7 +122,7 @@ The philosophy is **TinyClaw**:
 
 | Risk | Mitigation |
 |------|------------|
-| Scope creep | TinyClaw discipline |
+| Scope creep | Incremental discipline |
 | Over-complex architecture | Phase gating |
 | [Add more] | [Add mitigation] |
 
