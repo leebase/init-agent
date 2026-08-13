@@ -16,7 +16,7 @@ opportunity: >                          # ✅ REQUIRED: What capability is gaine
 why_now: >                              # ✅ REQUIRED: Why this matters now
   Antigravity agents are active on the project and need a formalized workflow.
 
-minimal_impl: >                         # ✅ REQUIRED: TinyClaw version
+minimal_impl: >                         # ✅ REQUIRED: Minimal working version
   Update `AGENTS.md` to include a specific section for Antigravity agents, defining the artifact mapping protocol:
   - `task.md` <-> `sprint-plan.md` / `context.md`
   - `implementation_plan.md` <-> `architecture.md` / design docs

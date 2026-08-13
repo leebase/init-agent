@@ -14,6 +14,8 @@ Every scaffold includes the AgentFlow document system:
 - `result-review.md` as the running completion log
 - `sprint-plan.md`, `sprint-review.md`, `project-plan.md`, and backlog structure
 - `skills/` for task-specific workflows such as development, testing, documentation, backlog work, and code review
+- `skills/delegation.md` and `skills/use-orchestration.md` for worker-harness delegation and Agent-Orch/Auto-Orch handoffs
+- `docs/case-studies.md` for durable lessons learned, seeded with the Auto-Orch subprocess-seam failure pattern
 
 On top of that, `init-agent` adds a profile-specific starter project:
 
@@ -84,6 +86,17 @@ Current update behavior:
 - `--force` skips prompts for refreshable files, but does not delete the target directory
 
 This keeps the methodology upgradeable without wiping the state the methodology is supposed to preserve.
+
+## Agent-Orch and Auto-Orch Lessons
+
+The generated AgentFlow contract now carries forward the operating lessons from
+`agent-orch` and its `auto-orch` subsystem:
+
+- startup orientation includes `WHERE_AM_I.md` so agents get product-level state before acting
+- `AGENTS.md` documents harness-portable markdown conventions for Codex, Claude, Gemini, Copilot, Antigravity, and similar tools
+- subprocess seams must be proven with at least one real-boundary test or smoke, not mock-only unit tests
+- generated projects include optional delegation and orchestration skills for governed workflows
+- `docs/case-studies.md` starts with the Auto-Orch lesson that green per-slice tests can still hide a broken assembled workflow
 
 ## Why This Project Exists
 

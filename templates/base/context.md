@@ -43,7 +43,7 @@ Project initialization complete. Ready for first sprint planning.
 | Decision | Rationale | Date |
 |----------|-----------|------|
 | Language: {LANGUAGE} | Project scaffold | {TIMESTAMP} |
-| TinyClaw methodology | Build small, validate, expand | {TIMESTAMP} |
+| Incremental delivery methodology | Build small, validate, expand | {TIMESTAMP} |
 
 ---
 

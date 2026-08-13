@@ -23,6 +23,15 @@ At the start of every session, in order:
 2. Read `context.md` — current state and what to do next
 3. Check `result-review.md` — what was recently completed
 4. Read `sprint-plan.md` — current sprint tasks and priorities
+5. Read `WHERE_AM_I.md` — product-level orientation and milestone state
+
+If your harness supports delegated or sub-agents and you plan to use them,
+also read `agents/README.md` before selecting a role brief from `agents/`
+when those files exist.
+
+If you were asked to set up, launch, or report on a governed workflow, read
+`OPERATE.md` when present. It should be treated as the project-specific runbook
+for orchestration, launch, monitor, resume, and reporting steps.
 
 ---
 
@@ -37,8 +46,32 @@ Load the relevant skill file when the trigger applies. Do not try to remember �
 | You are about to commit | `skills/documentation.md` |
 | You are creating a backlog item | `skills/backlog.md` |
 | You are closing a sprint or preparing a release | `skills/code-review.md` |
+| You are delegating implementation to a worker harness | `skills/delegation.md` |
+| You are using Agent-Orch or Auto-Orch, converting a sprint plan to a playbook, or launching a governed workflow | `skills/use-orchestration.md` |
 
 Skills are short, focused, and task-specific. They contain the judgment, not just the steps.
+
+---
+
+## Harness Compatibility
+
+To keep this repo usable across Codex, Claude, Gemini, Copilot, Aider,
+Antigravity, and similar coding harnesses, treat the project docs as portable
+instructions rather than runtime-specific config.
+
+- `AGENTS.md` is the source of truth for startup protocol, guardrails, and
+  collaboration expectations.
+- `skills/*.md` are portable markdown playbooks. Any harness may load and
+  follow them when their trigger applies.
+- `agents/*.md` are optional role briefs for harnesses that support delegated
+  agents or task-specialized sub-agents.
+- If a harness does not support explicit sub-agents, the main agent should read
+  the relevant file in `agents/` and apply it directly.
+- Keep these files plain markdown and relative-path based. Do not rely on
+  proprietary tool names, model names, or frontmatter fields to make the system
+  work.
+- When a harness-specific wrapper is useful, it must be optional. The markdown
+  content still needs to be understandable and executable without that wrapper.
 
 ---
 
@@ -88,6 +121,19 @@ The `Mode` field in `context.md` controls how independently you work:
 - Commit directly to protected branches
 - Move files out of `backlog/candidates/` (human curates)
 
+### Subprocess Seam Rule
+
+Any change that touches a subprocess seam — code that invokes another process's
+CLI, external worker, model harness, build tool, deployment command, or
+orchestrator — must include at least one test or smoke check that invokes the
+real boundary. Mocks can support internal unit tests, but they cannot be the
+only proof that the assembled system works.
+
+This rule exists because Auto-Orch proved a failure mode worth remembering:
+every slice can pass in isolation while the composed system fails at the real
+CLI seam. Prefer evidence from the real command boundary, captured artifacts,
+and exit codes over worker narration.
+
 ---
 
 ## Document Reference
@@ -99,11 +145,15 @@ The `Mode` field in `context.md` controls how independently you work:
 | `WHERE_AM_I.md` | Every session start | When milestones reached or direction changes |
 | `result-review.md` | Every session start | When work completed |
 | `sprint-plan.md` | Every session start | When tasks complete |
+| `agents/README.md` | Before using delegated agents | When the delegated-agent workflow changes |
+| `agents/*.md` | Before delegating to a specialized role | When the role instructions change |
+| `OPERATE.md` | Before running governed workflows | When launch/monitor/resume operations change |
 | `sprint-review.md` | After sprints | External AI fills in review |
 | `project-plan.md` | When direction unclear | Strategic changes only |
 | `product-definition.md` | When scope unclear | Product changes only |
 | `architecture.md` | When making tech decisions | When decisions are made |
 | `feedback.md` | When given feedback | Human adds feedback |
+| `docs/case-studies.md` | When a failure pattern feels familiar | Add transferable failures and recoveries |
 | `backlog/schema.md` | Creating backlog items | Never (reference) |
 | `backlog/template.md` | Creating backlog items | Never (copy-paste) |
 

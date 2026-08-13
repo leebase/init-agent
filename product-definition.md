@@ -56,9 +56,9 @@ The scaffold establishes a **contract** between human and AI:
 - AI updates context.md → Human knows current state
 - AI logs results → Human reviews progress
 
-### 2. TinyClaw Methodology
+### 2. Incremental Delivery Methodology
 
-Every scaffolded project follows TinyClaw principles:
+Every scaffolded project follows incremental delivery principles:
 - **Small**: Minimal viable first, expand after validation
 - **Working**: Everything functional at each commit
 - **Validated**: Tests pass before moving on
@@ -173,6 +173,20 @@ backlog/
 ├── parked/            # Deferred items
 └── implemented/       # Completed items
 ```
+
+### 6. Tutorial Writer Profile
+
+A domain-specific profile that stamps a full multi-agent tutorial writing
+pipeline into any project — no external orchestrator required.
+
+```bash
+init-agent my-tutorial --profile tutorial-writer
+```
+
+The profile writes an `agents/` directory plus 23 skill files into `skills/`,
+including a `tutorial-writer.md` coordinator that sequences a 10-stage pipeline
+(interpret → define → plan → [human gate] → evidence → visuals → draft →
+validate → review → revise) for a single AI session.
 
 ## Non-Goals
 
@@ -305,7 +319,7 @@ Next steps:
 2. **context.md as baton** - Session continuity across interruptions
 3. **result-review.md as log** - Trackable progress, searchable history
 4. **Backlog folders as state machine** - Clear workflow (candidates → approved → implemented)
-5. **TinyClaw discipline** - Small, working, validated increments
+5. **Incremental discipline** - Small, working, validated increments
 
 ### What We'll Improve
 
@@ -342,5 +356,5 @@ Next steps:
 ## References
 
 - LeeClaw project: `/Users/leeharrington/projects/leeclaw`
-- TinyClaw methodology: See LeeClaw AGENTS.md
+- Incremental delivery methodology: See LeeClaw AGENTS.md
 - Sprint planning: See LeeClaw sprint-plan-*.md files

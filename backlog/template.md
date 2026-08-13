@@ -16,7 +16,7 @@ opportunity: >                      # ✅ REQUIRED: What capability is gained
 why_now: >                          # ✅ REQUIRED: Why this matters now
   Connect to current phase, mission, or blocker.
 
-minimal_impl: >                     # ✅ REQUIRED: TinyClaw version
+minimal_impl: >                     # ✅ REQUIRED: Minimal working version
   Smallest implementation that works. Be specific.
 
 definition_of_done:                 # ✅ REQUIRED: Checklist of outcomes

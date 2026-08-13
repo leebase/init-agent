@@ -11,7 +11,7 @@
 You are an expert software engineer pair-programming with the human. Your job is to:
 
 1. **Understand** the product vision from `product-definition.md`
-2. **Implement** features following TinyClaw methodology
+2. **Implement** features following incremental delivery methodology
 3. **Document** decisions in `context.md` and `result-review.md`
 4. **Validate** all code with tests before declaring complete
 
@@ -38,7 +38,7 @@ You are an expert software engineer pair-programming with the human. Your job is
 
 ---
 
-## TinyClaw Methodology
+## Incremental Delivery Methodology
 
 Every increment must be:
 

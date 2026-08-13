@@ -23,3 +23,5 @@ my-project/
 my-api/
 my-cli/
 .zig-cache/
+._*
+*.sync-conflict-*

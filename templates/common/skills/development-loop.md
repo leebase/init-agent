@@ -55,6 +55,23 @@ A test run that ends in errors means you are not done with step 2. Fix before co
 - Integration tests that cover the affected feature
 - The build itself (compilation errors = failing test)
 
+### Subprocess and Tool Boundaries
+
+If your change touches code that invokes another process — a CLI, model
+harness, build tool, deployment command, external validator, or orchestrator —
+add at least one check that crosses the real boundary. A mock-only test can
+prove internal branching, but it cannot prove the assembled workflow works.
+
+Prefer:
+- a real subprocess invocation with fixture inputs
+- a smoke command that exercises the installed entry point
+- captured artifacts or exit codes asserted by the test
+
+Avoid:
+- replacing the boundary with `subprocess.run` or process-spawn mocks as the
+  only proof
+- trusting worker prose instead of files, exit codes, or validated output
+
 ---
 
 ## What Commit Means

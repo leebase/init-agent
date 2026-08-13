@@ -6,9 +6,36 @@
 
 | Attribute | Value |
 |-----------|-------|
-| **Current Sprint** | Sprint 8 — Safe Existing-Project Refresh |
+| **Current Sprint** | Maintenance — Agent-Orch/Auto-Orch Contract Refresh |
 | **Version Target** | v1.2.0 |
-| **Last Updated** | 2026-03-06 |
+| **Last Updated** | 2026-07-07 |
+
+---
+
+## Maintenance — Agent-Orch/Auto-Orch Contract Refresh ✅ COMPLETE
+
+> Port the evolved AgentFlow operating doctrine from `agent-orch` and
+> `auto-orch` into init-agent's root docs and generated templates.
+
+### Tasks
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Update generated `AGENTS.md` contract | ✅ | Adds `WHERE_AM_I.md` startup, harness compatibility, optional governed-workflow runbook handling, and subprocess seam rule |
+| Add delegation and orchestration skills | ✅ | New common `skills/delegation.md` and `skills/use-orchestration.md` emitted for all profiles |
+| Add case-study memory doc | ✅ | New `docs/case-studies.md` seeded with Auto-Orch assembly-failure lesson |
+| Wire embedded template registry | ✅ | `src/main.zig` embeds new docs/skills for all current profiles |
+| Recompile executable | ✅ | `zig-out/bin/init-agent` rebuilt via direct Zig 0.13 compile path |
+| Verify generated output | ✅ | Direct unit tests passed; Python profile smoke confirmed new files and AGENTS content |
+
+### Verification Notes
+
+- Direct Zig 0.13.0 compile passed and rebuilt `zig-out/bin/init-agent`.
+- Direct Zig 0.13.0 unit tests passed: 10/10.
+- Smoke scaffold verified `skills/delegation.md`,
+  `skills/use-orchestration.md`, `docs/case-studies.md`,
+  `Harness Compatibility`, and `Subprocess Seam Rule`.
+- `make check-sync` passes after removing old `*.sync-conflict-*` files.
 
 ---
 
@@ -36,6 +63,34 @@ When `init-agent` runs against an existing project, it should refresh only the a
 - `AGENTS.md` and `skills/*` are refreshed on rerun, with overwrite prompts unless `--force` is used.
 - `--update` touches only `AGENTS.md` and `skills/*`.
 - Automated tests cover the preservation rules.
+
+---
+
+## Sprint 9 — Tutorial Writer Profile ⏳ IN PROGRESS
+
+> Add tutorial-writing smarts to init-agent as a portable, orchestrator-free skill profile.
+
+### Goals
+
+A `tutorial-writer` profile that stamps a full 10-agent, 18-skill tutorial
+writing pipeline into any project. Works in Model 1 (single-agent sequential)
+mode — one AI session plays all roles in sequence.
+
+### Tasks
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Create coordinator skill `tutorial-writer.md` | ✅ | 10-stage pipeline with outline approval gate |
+| Port + generalize 17 sub-skills from lunduke-transcripts | ✅ | All lunduke-specific artifact names removed |
+| Port 10 agent role files | ✅ | Placed under `templates/tutorial-writer/agents/` |
+| Smoke test: run pipeline on a real source | ⬜ | Use tutorial-writer skills themselves as topic |
+| Add `--profile tutorial-writer` CLI support to Zig binary | ⬜ | Sprint 9 stretch goal |
+
+**Acceptance Criteria**
+- An AI agent can load `tutorial-writer.md` and run the full pipeline end-to-end.
+- The outline gate fires: AI stops and shows the outline before drafting.
+- No lunduke-specific artifact names appear in any skill or agent file.
+- Final output reads like a tutorial, not a transcript or internal notes.
 
 ---
 

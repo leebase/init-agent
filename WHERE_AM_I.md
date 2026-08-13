@@ -14,7 +14,7 @@
 | **Profile** | Zig CLI Tool |
 | **Current Phase** | Phase 2 — Safety, Upgradeability, and Distribution |
 | **Overall Status** | 🟢 Active development |
-| **Last Updated** | 2026-03-06 |
+| **Last Updated** | 2026-07-07 |
 
 ---
 
@@ -36,6 +36,7 @@
 |------|--------|-------|
 | Keep existing-project updates safe | ✅ Done | Sprint 8 completed with contract-only refresh rules |
 | Maintain release/build quality | ✅ Done | Build, unit tests, integration tests, and template sync passed |
+| Port mature AgentFlow doctrine | ✅ Done | Agent-Orch/Auto-Orch harness, delegation, orchestration, and seam-proof lessons now live in root docs and generated templates |
 | Prepare next improvement sprint | 🟡 In progress | Backlog review and roadmap cleanup still pending |
 
 ---
@@ -45,6 +46,7 @@
 | Sprint | Focus | Status |
 |--------|-------|--------|
 | Sprint 8 — Safe Existing-Project Refresh | Preserve project memory during reruns and updates | ✅ Complete |
+| Maintenance — Agent-Orch/Auto-Orch Contract Refresh | Port mature AgentFlow operating doctrine into generated docs | ✅ Complete |
 
 ---
 
@@ -54,6 +56,7 @@
 |-------------|--------|--------|
 | Historical planning docs are stale | Creates confusion about actual completed work | 🟡 Cleanup needed |
 | Zig 0.13.0 build requirement is not enforced locally | Local builds fail with newer Zig unless the right compiler is used | 🟡 Known issue |
+| Template sync-conflict files block `make check-sync` | Old sync-conflict artifacts removed; sync proof is green again | ✅ Resolved |
 
 ---
 
@@ -65,6 +68,7 @@ Decisions that affect product direction (for technical decisions, see `architect
 |----------|-----------|------|
 | Existing managed projects refresh contract files only | Preserve accumulated project memory while keeping methodology contracts upgradeable | 2026-03-06 |
 | `--force` is non-destructive for managed projects | Prompt bypass should not imply deleting user-owned state | 2026-03-06 |
+| Subprocess seams need real-boundary proof | Auto-Orch showed mock-only tests can leave a composed workflow broken | 2026-07-07 |
 
 ---
 
@@ -74,6 +78,7 @@ Decisions that affect product direction (for technical decisions, see `architect
 
 - [x] Users can scaffold new AgentFlow projects across supported profiles
 - [x] Users can refresh contract files in existing projects without overwriting project memory
+- [x] Generated projects inherit the Agent-Orch/Auto-Orch seam-proof doctrine
 - [ ] Historical product and sprint docs fully reconciled with delivered work
 
 ---
