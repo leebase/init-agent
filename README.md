@@ -14,7 +14,7 @@ Every scaffold includes the AgentFlow document system:
 - `result-review.md` as the running completion log
 - `sprint-plan.md`, `sprint-review.md`, `project-plan.md`, and backlog structure
 - `skills/` for task-specific workflows such as development, testing, documentation, backlog work, and code review
-- `skills/delegation.md` and `skills/use-orchestration.md` for worker-harness delegation and Agent-Orch/Auto-Orch handoffs
+- `skills/delegation.md` and `skills/use-orchestration.md` for worker-harness delegation and Auto-Orch handoffs (bounded engineering work runs through the Supervisor Kernel, `/supervise`; Agent-Orch is abandoned, D497)
 - `docs/case-studies.md` for durable lessons learned, seeded with the Auto-Orch subprocess-seam failure pattern
 
 On top of that, `init-agent` adds a profile-specific starter project:

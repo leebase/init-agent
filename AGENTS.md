@@ -29,9 +29,10 @@ If your harness supports delegated or sub-agents and you plan to use them,
 also read `agents/README.md` before selecting a role brief from `agents/`
 when those files exist.
 
-If you were asked to set up, launch, or report on a governed workflow, read
-`OPERATE.md` when present. It should be treated as the project-specific runbook
-for orchestration, launch, monitor, resume, and reporting steps.
+Bounded engineering work runs through the Supervisor Kernel (invoke `/supervise` in your harness; Codex: `$supervise`). Agent-Orch is
+abandoned (D497). If a project still has an `OPERATE.md` written for
+Agent-Orch, treat it as a historical record; its project-specific acceptance,
+oracle, review and test rules still apply.
 
 ---
 
@@ -47,7 +48,8 @@ Load the relevant skill file when the trigger applies. Do not try to remember â€
 | You are creating a backlog item | `skills/backlog.md` |
 | You are closing a sprint or preparing a release | `skills/code-review.md` |
 | You are delegating implementation to a worker harness | `skills/delegation.md` |
-| You are using Agent-Orch or Auto-Orch, converting a sprint plan to a playbook, or launching a governed workflow | `skills/use-orchestration.md` |
+| You are running bounded engineering work | the Supervisor Kernel (invoke `/supervise` in your harness; Codex: `$supervise`) |
+| You are working with an Auto-Orch mission, or reading the historical Agent-Orch path (abandoned, D497) | `skills/use-orchestration.md` |
 
 Skills are short, focused, and task-specific. They contain the judgment, not just the steps.
 
@@ -159,7 +161,7 @@ and exit codes over worker narration.
 | `sprint-plan.md` | Every session start | When tasks complete |
 | `agents/README.md` | Before using delegated agents | When the delegated-agent workflow changes |
 | `agents/*.md` | Before delegating to a specialized role | When the role instructions change |
-| `OPERATE.md` | Before running governed workflows | When launch/monitor/resume operations change |
+| `OPERATE.md` | Historical Agent-Orch runbook, if present (abandoned, D497) | Never (historical record) |
 | `sprint-review.md` | After sprints | External AI fills in review |
 | `project-plan.md` | When direction unclear | Strategic changes only |
 | `product-definition.md` | When scope unclear | Product changes only |
