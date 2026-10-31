@@ -5,7 +5,7 @@
 > `/supervise` in your harness (Codex: `$supervise`). The Agent-Orch guidance
 > below is a historical record; do not start new Agent-Orch workflows. Auto-Orch
 > remains the system for unattended mission loops. Project-specific acceptance,
-> oracle, review and test rules still apply under the kernel.
+> human-approval, oracle, review and test rules still apply under the kernel.
 
 > Load this skill when you need to run a task through governed execution,
 > convert a sprint plan into a playbook, launch or monitor a governed workflow,

@@ -32,7 +32,7 @@ when those files exist.
 Bounded engineering work runs through the Supervisor Kernel (invoke `/supervise` in your harness; Codex: `$supervise`). Agent-Orch is
 abandoned (D497). If a project still has an `OPERATE.md` written for
 Agent-Orch, treat it as a historical record; its project-specific acceptance,
-oracle, review and test rules still apply.
+human-approval, oracle, review and test rules still apply.
 
 ---
 
